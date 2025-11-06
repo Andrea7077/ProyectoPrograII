@@ -8,6 +8,6 @@ package pantallas;
  *
  * @author andre
  */
-public class tablero {
+public class PMiPerfil {
     
 }

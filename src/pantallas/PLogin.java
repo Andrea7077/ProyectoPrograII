@@ -5,6 +5,7 @@
  */
 package pantallas;
 
+import Clases.Cuenta;
 import Clases.Jugador;
 import javax.swing.*;
 import java.awt.*;
@@ -16,17 +17,20 @@ import java.awt.event.*;
  */
 public class PLogin extends JFrame {
 
-
     private JTextField tuser;
     private JPasswordField tcontra;
     private JLabel labelmensaje;
     private JButton btnLogin;
-    private JButton btnRegresar; 
+    private JButton btnRegresar;
 
     public PLogin() {
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setUndecorated(true);
+        setResizable(false);
+
         setTitle("Vampire Wargame - Log In");
         setSize(600, 400);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE); 
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
 
@@ -40,6 +44,7 @@ public class PLogin extends JFrame {
 
         JPanel panelCentro = new JPanel(new GridBagLayout());
         panelCentro.setOpaque(false);
+
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(8, 8, 8, 8);
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -48,7 +53,9 @@ public class PLogin extends JFrame {
         JLabel lblTitulo = new JLabel("VAMPIRE WARGAME", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Serif", Font.BOLD, 24));
         lblTitulo.setForeground(Color.RED);
-        c.gridx = 0; c.gridy = 0; c.gridwidth = 2;
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 2;
         panelCentro.add(lblTitulo, c);
 
         JLabel lblSubtitulo = new JLabel("Iniciar Sesión", SwingConstants.CENTER);
@@ -59,9 +66,11 @@ public class PLogin extends JFrame {
 
         JLabel lblUser = new JLabel("Usuario:");
         lblUser.setForeground(Color.WHITE);
-        c.gridy++; c.gridwidth = 1; c.gridx = 0;
+        c.gridy++;
+        c.gridwidth = 1;
+        c.gridx = 0;
         panelCentro.add(lblUser, c);
-        
+
         tuser = new JTextField(15);
         tuser.setBackground(new Color(60, 60, 80));
         tuser.setForeground(Color.WHITE);
@@ -71,9 +80,10 @@ public class PLogin extends JFrame {
 
         JLabel lblPass = new JLabel("Contraseña:");
         lblPass.setForeground(Color.WHITE);
-        c.gridy++; c.gridx = 0;
+        c.gridy++;
+        c.gridx = 0;
         panelCentro.add(lblPass, c);
-        
+
         tcontra = new JPasswordField(15);
         tcontra.setBackground(new Color(60, 60, 80));
         tcontra.setForeground(Color.WHITE);
@@ -83,7 +93,9 @@ public class PLogin extends JFrame {
 
         labelmensaje = new JLabel("", SwingConstants.CENTER);
         labelmensaje.setForeground(Color.RED);
-        c.gridy++; c.gridx = 0; c.gridwidth = 2;
+        c.gridy++;
+        c.gridx = 0;
+        c.gridwidth = 2;
         panelCentro.add(labelmensaje, c);
 
         JPanel btnPanel = new JPanel();
@@ -93,58 +105,47 @@ public class PLogin extends JFrame {
         btnLogin.setBackground(new Color(150, 0, 0));
         btnLogin.setForeground(Color.WHITE);
         btnLogin.setFocusPainted(false);
-        
-        btnRegresar = new JButton("Regresar"); 
-        btnRegresar.setBackground(new Color(90, 0, 0)); 
+
+        btnRegresar = new JButton("Regresar");
+        btnRegresar.setBackground(new Color(90, 0, 0));
         btnRegresar.setForeground(Color.WHITE);
         btnRegresar.setFocusPainted(false);
 
         btnPanel.add(btnLogin);
-        btnPanel.add(btnRegresar); 
-        
+        btnPanel.add(btnRegresar);
         c.gridy++;
         c.gridwidth = 2;
         panelCentro.add(btnPanel, c);
 
         fondoPanel.add(panelCentro, gbc);
 
-        
+        // 🔹 Acciones
         btnRegresar.addActionListener(e -> {
-            dispose(); 
-            new MenuDeInicio().setVisible(true); 
+            dispose();
+            new MenuDeInicio().setVisible(true);
         });
-        
-        btnLogin.addActionListener(e -> {
-            dispose(); 
-            new MenuPrincipal().setVisible(true); 
-        });
-        
+
+        btnLogin.addActionListener(e -> validarLogin());
     }
 
-//    private void validarLogin() {
-//        String user = tuser.getText().trim();
-//        String pass = new String(tcontra.getPassword());
-//
-//        Jugador jugador = null;
-//        for (Jugador j : PCrearCuenta.listaJugadores) {
-//            if (j.getUsername().equals(user) && j.getPassword().equals(pass)) {
-//                jugador = j;
-//                break;
-//            }
-//        }
-//
-//        if (jugador != null) {
-//            labelmensaje.setForeground(Color.GREEN.brighter());
-//            labelmensaje.setText("Inicio de sesión exitoso.");
-//            JOptionPane.showMessageDialog(this, "¡Bienvenido " + user + "!");
-//            dispose();
-//        } else {
-//            labelmensaje.setForeground(Color.RED.brighter());
-//            labelmensaje.setText("Usuario o contraseña incorrectos.");
-//        }
-//    }
+    private void validarLogin() {
+        String username = tuser.getText().trim();
+        String password = new String(tcontra.getPassword());
 
-    static class FondoPanel extends JPanel { // Clase estática para mejor práctica
+        if (Cuenta.iniciarSesion(username, password)) {
+            labelmensaje.setForeground(Color.GREEN);
+            labelmensaje.setText("Inicio de sesión exitoso 🎉");
+            JOptionPane.showMessageDialog(this, "¡Bienvenido " + username + "!");
+            dispose();
+            new MenuPrincipal().setVisible(true);
+        } else {
+            labelmensaje.setForeground(Color.RED);
+            labelmensaje.setText("Usuario o contraseña incorrectos ❌");
+        }
+    }
+
+    // Clase para el fondo
+    static class FondoPanel extends JPanel {
 
         private Image imagen;
 
@@ -154,13 +155,12 @@ public class PLogin extends JFrame {
             try {
                 imagen = new ImageIcon(getClass().getResource("/imagenes/FondoLogIn.png")).getImage();
             } catch (Exception e) {
-                 System.err.println("Error al cargar la imagen de fondo: /imagenes/FondoLogIn.png");
-                 g.setColor(Color.BLACK);
-                 g.fillRect(0, 0, getWidth(), getHeight());
-                 return;
+                System.err.println("Error al cargar la imagen de fondo: /imagenes/FondoLogIn.png");
+                g.setColor(Color.BLACK);
+                g.fillRect(0, 0, getWidth(), getHeight());
+                return;
             }
             g.drawImage(imagen, 0, 0, getWidth(), getHeight(), this);
         }
     }
-
 }

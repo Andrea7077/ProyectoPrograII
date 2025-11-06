@@ -14,28 +14,31 @@ import java.awt.*;
 public class MenuDeInicio extends JFrame {
 
     public MenuDeInicio() {
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setUndecorated(true);
+        setResizable(false);
+        
         setTitle("Vampire Wargame - Menú de Inicio");
-        setSize(1024, 768); 
-        setLocationRelativeTo(null); 
+        setSize(1024, 768);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
         FondoPanel fondo = new FondoPanel();
         fondo.setLayout(new GridBagLayout());
-        setContentPane(fondo); 
+        setContentPane(fondo);
 
         GridBagConstraints gbcMain = new GridBagConstraints();
-        gbcMain.insets = new Insets(100, 100, 100, 100); 
+        gbcMain.insets = new Insets(100, 100, 100, 100);
         gbcMain.anchor = GridBagConstraints.CENTER;
-        
+
         JPanel panelCentro = new JPanel(new GridBagLayout());
-        panelCentro.setOpaque(false);         
-   
+        panelCentro.setOpaque(false);
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(15, 20, 15, 20);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        
-       
+
         JLabel lblTitulo = new JLabel("VAMPIRE WARGAME", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Serif", Font.BOLD, 48)); // Tamaño de fuente aumentado
         lblTitulo.setForeground(new Color(255, 50, 50)); // Rojo brillante
@@ -43,36 +46,34 @@ public class MenuDeInicio extends JFrame {
         gbc.gridy = 0;
         gbc.gridwidth = 1;
         panelCentro.add(lblTitulo, gbc);
-        
-       
+
         Dimension btnSize = new Dimension(250, 50); // Tamaño consistente y más grande
         Font btnFont = new Font("Segoe UI", Font.BOLD, 18);
-        
+
         JButton btnLogin = crearBoton("Log In", new Color(139, 0, 0), btnSize, btnFont);
         gbc.gridy++;
         panelCentro.add(btnLogin, gbc);
-        
+
         JButton btnCrear = crearBoton("Crear Player", new Color(178, 34, 34), btnSize, btnFont);
         gbc.gridy++;
         panelCentro.add(btnCrear, gbc);
-        
+
         JButton btnSalir = crearBoton("Salir", new Color(90, 0, 0), btnSize, btnFont);
         gbc.gridy++;
         panelCentro.add(btnSalir, gbc);
-        
-        
+
         fondo.add(panelCentro, gbcMain);
 
         btnLogin.addActionListener(e -> {
-             dispose(); 
-             new PLogin().setVisible(true);
+            dispose();
+            new PLogin().setVisible(true);
         });
-        
+
         btnCrear.addActionListener(e -> {
-             dispose(); 
-             new PCrearCuenta().setVisible(true);
+            dispose();
+            new PCrearCuenta().setVisible(true);
         });
-        
+
         btnSalir.addActionListener(e -> {
             int resp = JOptionPane.showConfirmDialog(this,
                     "¿Seguro que deseas salir?",
@@ -84,7 +85,7 @@ public class MenuDeInicio extends JFrame {
             }
         });
     }
-    
+
     /**
      * Helper method para crear botones con estilo consistente.
      */
@@ -99,20 +100,20 @@ public class MenuDeInicio extends JFrame {
         return btn;
     }
 
-    
     /**
      * Panel personalizado para dibujar una imagen como fondo.
      */
     static class FondoPanel extends JPanel {
+
         private Image imagen;
 
         public FondoPanel() {
             try {
-             
+
                 imagen = new ImageIcon(getClass().getResource("/imagenes/sdfgn.jpg")).getImage();
             } catch (Exception e) {
                 System.err.println("ERROR: No se pudo cargar la imagen de fondo: /imagenes/FondoMenu.png");
-                setBackground(Color.BLACK); 
+                setBackground(Color.BLACK);
             }
         }
 
@@ -124,7 +125,5 @@ public class MenuDeInicio extends JFrame {
             }
         }
     }
-    
- 
 
 }

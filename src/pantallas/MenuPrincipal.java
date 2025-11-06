@@ -4,6 +4,7 @@
  */
 package pantallas;
 
+import Clases.Cuenta;
 import javax.swing.*;
 import java.awt.*;
 
@@ -13,8 +14,14 @@ import java.awt.*;
  */
 public class MenuPrincipal extends JFrame {
 
+  public JButton btnJugar, btnPerfil, btnSalir, btnReportes;
+
     public MenuPrincipal() {
-        setTitle("Vampire Wargame - Menú Principal");
+         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setUndecorated(true);
+        setResizable(false);
+        
+        setTitle("Vampire Wargame - Menu Principal");
         setSize(1024, 768);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -36,58 +43,75 @@ public class MenuPrincipal extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         JLabel lblTitulo = new JLabel("VAMPIRE WARGAME", SwingConstants.CENTER);
-        lblTitulo.setFont(new Font("Serif", Font.BOLD, 48)); // Tamaño de fuente aumentado
-        lblTitulo.setForeground(new Color(255, 50, 50)); // Rojo brillante
+        lblTitulo.setFont(new Font("Serif", Font.BOLD, 48));
+        lblTitulo.setForeground(new Color(255, 50, 50));
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.gridwidth = 1;
         panelCentro.add(lblTitulo, gbc);
 
-        Dimension btnSize = new Dimension(250, 50); // Tamaño consistente y más grande
+        Dimension btnSize = new Dimension(250, 50);
         Font btnFont = new Font("Segoe UI", Font.BOLD, 18);
 
-        JButton btnLogin = crearBoton("Jugar", new Color(139, 0, 0), btnSize, btnFont);
+        btnJugar = crearBoton("Jugar", new Color(139, 0, 0), btnSize, btnFont);
         gbc.gridy++;
-        panelCentro.add(btnLogin, gbc);
+        panelCentro.add(btnJugar, gbc);
 
-        JButton btnCrear = crearBoton("Mi Perfil", new Color(178, 34, 34), btnSize, btnFont);
+        btnPerfil = crearBoton("Mi Perfil", new Color(178, 34, 34), btnSize, btnFont);
         gbc.gridy++;
-        panelCentro.add(btnCrear, gbc);
+        panelCentro.add(btnPerfil, gbc);
 
-        JButton btnSalir = crearBoton("Salir", new Color(90, 0, 0), btnSize, btnFont);
+        btnReportes = crearBoton("Reportes", new Color(178, 34, 34), btnSize, btnFont);
+        gbc.gridy++;
+        panelCentro.add(btnReportes, gbc);
+
+        btnSalir = crearBoton("Cerrar Sesión", new Color(90, 0, 0), btnSize, btnFont);
         gbc.gridy++;
         panelCentro.add(btnSalir, gbc);
 
         fondo.add(panelCentro, gbcMain);
 
-        btnLogin.addActionListener(e -> {
+        // 🔹 Acciones
+        btnJugar.addActionListener(e -> {
             dispose();
-            new PLogin().setVisible(true);
+            new PTablero().setVisible(true);
         });
 
-        btnCrear.addActionListener(e -> {
-            dispose();
-            new PCrearCuenta().setVisible(true);
+        btnPerfil.addActionListener(e -> {
+            Cuenta usuario = Cuenta.getUsuarioActual();
+            if (usuario != null) {
+                JOptionPane.showMessageDialog(this,
+                        "Usuario: " + usuario.getUsername(),
+                        "Mi Perfil", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "No hay usuario logueado.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        btnReportes.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this,
+                    "Aquí irían los reportes (ranking y logs).",
+                    "Reportes", JOptionPane.INFORMATION_MESSAGE);
         });
 
         btnSalir.addActionListener(e -> {
             int resp = JOptionPane.showConfirmDialog(this,
-                    "¿Seguro que deseas salir?",
-                    "Salir del juego",
+                    "¿Deseas cerrar sesión?",
+                    "Cerrar Sesión",
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE);
             if (resp == JOptionPane.YES_OPTION) {
-                System.exit(0);
+                Cuenta.cerrarSesion();
+                dispose();
+                new MenuDeInicio().setVisible(true);
             }
         });
     }
 
-    /**
-     * Helper method para crear botones con estilo consistente.
-     */
     private JButton crearBoton(String texto, Color bgColor, Dimension size, Font font) {
         JButton btn = new JButton(texto);
-        btn.setPreferredSize(size);
+        btn.setPreferredSize(new Dimension(200,60));
         btn.setBackground(bgColor);
         btn.setForeground(Color.WHITE);
         btn.setFont(font);
@@ -96,23 +120,15 @@ public class MenuPrincipal extends JFrame {
         return btn;
     }
 
-    /**
-     * Panel personalizado para dibujar una imagen como fondo.
-     */
     static class FondoPanel extends JPanel {
-
         private Image imagen;
-
         public FondoPanel() {
             try {
-
                 imagen = new ImageIcon(getClass().getResource("/imagenes/sdfgn.jpg")).getImage();
             } catch (Exception e) {
-                System.err.println("ERROR: No se pudo cargar la imagen de fondo: /imagenes/FondoMenu.png");
                 setBackground(Color.BLACK);
             }
         }
-
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
@@ -121,4 +137,5 @@ public class MenuPrincipal extends JFrame {
             }
         }
     }
+
 }

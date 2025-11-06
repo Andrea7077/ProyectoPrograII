@@ -9,7 +9,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import Clases.Jugador;
+import Clases.*;
 
 /**
  *
@@ -24,6 +24,10 @@ public class PCrearCuenta extends JFrame {
     private JLabel lblMensaje;
 
     public PCrearCuenta() {
+         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setUndecorated(true);
+        setResizable(false);
+        
         setTitle("Crear Cuenta - Vampire Wargame");
         setSize(600, 400);
         setLocationRelativeTo(null);
@@ -137,6 +141,7 @@ public class PCrearCuenta extends JFrame {
 
         fondo.add(panelCentro, gbc);
 
+        // 🔹 Acciones
         btnCrear.addActionListener(e -> crearCuenta());
         btnCancelar.addActionListener(e -> dispose());
         btnRegresar.addActionListener(e -> {
@@ -149,43 +154,29 @@ public class PCrearCuenta extends JFrame {
         String username = txtUsername.getText().trim();
         String password = new String(txtPassword.getPassword());
 
-        if (username.isEmpty()) {
-            mostrarError("El username no puede estar vacío.");
-            return;
-        }
+        Cuenta resultado = Cuenta.crearCuenta(username, password);
 
-        if (Jugador.buscarJugador(username) != null) {
-            mostrarError("El username ya existe. Elige otro.");
-            return;
-        }
+        if (resultado != null) {
+            lblMensaje.setForeground(new Color(0, 255, 100));
+            lblMensaje.setText("Cuenta creada exitosamente 🎉");
+            JOptionPane.showMessageDialog(this,
+                    "¡Cuenta creada con éxito!\nBienvenido " + username,
+                    "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
-        if (password.length() != 5) {
-            mostrarError("La contraseña debe tener exactamente 5 caracteres.");
-            return;
-        }
+            dispose();
+            new MenuPrincipal().setVisible(true);
+        } else {
+            mostrarError("Error: username existente o contraseña inválida.");
+        }}
 
-        if (!password.matches(".*[^a-zA-Z0-9].*")) {
-            mostrarError("Debe tener al menos 1 carácter especial.");
-            return;
-        }
-
-  
-        Jugador.crearJugador(username, password);
-        lblMensaje.setForeground(new Color(0, 255, 100));
-        lblMensaje.setText("Cuenta creada exitosamente 🎉");
-
-        JOptionPane.showMessageDialog(this,
-                "¡Cuenta creada con éxito!\nBienvenido " + username,
-                "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-        
-    }
+    
 
     private void mostrarError(String mensaje) {
         lblMensaje.setForeground(Color.RED);
         lblMensaje.setText(mensaje);
     }
 
+    // 🔹 Clase interna para el fondo con imagen
     static class FondoPanel extends JPanel {
 
         private Image imagen;
