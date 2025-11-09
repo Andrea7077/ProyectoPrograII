@@ -8,6 +8,6 @@ package Clases;
  *
  * @author andre
  */
-public  class Vampiros extends Pieza {
+public final class Zombie extends Pieza {
     
 }
