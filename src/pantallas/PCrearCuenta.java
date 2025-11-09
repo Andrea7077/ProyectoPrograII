@@ -24,15 +24,12 @@ public class PCrearCuenta extends JFrame {
     private JLabel lblMensaje;
 
     public PCrearCuenta() {
-         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setUndecorated(true);
         setResizable(false);
-        
         setTitle("Crear Cuenta - Vampire Wargame");
         setSize(600, 400);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setResizable(false);
 
         FondoPanel fondo = new FondoPanel();
         fondo.setLayout(new GridBagLayout());
@@ -141,42 +138,96 @@ public class PCrearCuenta extends JFrame {
 
         fondo.add(panelCentro, gbc);
 
-        // 🔹 Acciones
+        // ✅ EVENTOS MEJORADOS
         btnCrear.addActionListener(e -> crearCuenta());
-        btnCancelar.addActionListener(e -> dispose());
+        btnCancelar.addActionListener(e -> limpiarCampos());
         btnRegresar.addActionListener(e -> {
             dispose();
             new MenuDeInicio().setVisible(true);
         });
+
+        txtPassword.addActionListener(e -> crearCuenta());
     }
 
     private void crearCuenta() {
-        String username = txtUsername.getText().trim();
-        String password = new String(txtPassword.getPassword());
+        try {
+            String username = txtUsername.getText().trim();
+            String password = new String(txtPassword.getPassword());
 
-        Cuenta resultado = Cuenta.crearCuenta(username, password);
+            // ⚠️ Validaciones visuales
+            if (username.isEmpty()) {
+                mostrarError("⚠️ El nombre de usuario no puede estar vacío");
+                return;
+            }
 
-        if (resultado != null) {
-            lblMensaje.setForeground(new Color(0, 255, 100));
-            lblMensaje.setText("Cuenta creada exitosamente 🎉");
-            JOptionPane.showMessageDialog(this,
-                    "¡Cuenta creada con éxito!\nBienvenido " + username,
-                    "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            if (password.length() != 5) {
+                mostrarError("⚠️ La contraseña debe tener exactamente 5 caracteres especiales");
+                return;
+            }
 
-            dispose();
-            new MenuPrincipal().setVisible(true);
-        } else {
-            mostrarError("Error: username existente o contraseña inválida.");
-        }}
+            // Verificar que todos los caracteres sean especiales
+            boolean todosEspeciales = true;
+            for (char c : password.toCharArray()) {
+                if (Character.isLetterOrDigit(c)) {
+                    todosEspeciales = false;
+                    break;
+                }
+            }
 
-    
+            if (!todosEspeciales) {
+                mostrarError("⚠️ La contraseña debe tener 5 caracteres especiales");
+                return;
+            }
+
+            // 🚀 Intentar crear la cuenta
+            Cuenta resultado = Cuenta.crearCuenta(username, password);
+
+            if (resultado != null) {
+                lblMensaje.setForeground(new Color(0, 255, 100));
+                lblMensaje.setText("✅ Cuenta creada exitosamente");
+
+                // Redirigir después de 1 segundo
+                Timer timer = new Timer(1000, ev -> {
+                    dispose();
+                    new MenuPrincipal().setVisible(true);
+                });
+                timer.setRepeats(false);
+                timer.start();
+            } else {
+                // 📢 Determinar el tipo de error
+                boolean existe = false;
+                for (Cuenta c : Cuenta.getTodasCuentas()) {
+                    if (c.getUsername().equalsIgnoreCase(username) && c.isActivo()) {
+                        existe = true;
+                        break;
+                    }
+                }
+
+                if (existe) {
+                    mostrarError("❌ Ese nombre de usuario ya existe, elige otro");
+                } else {
+                    mostrarError("❌ La contraseña no cumple con las reglas (5 caracteres especiales)");
+                }
+            }
+        } catch (Exception e) {
+            mostrarError("❌ Error inesperado: " + e.getMessage());
+        }
+
+    }
+
+    private void limpiarCampos() {
+        txtUsername.setText("");
+        txtPassword.setText("");
+        lblMensaje.setText("");
+        chkMostrar.setSelected(false);
+        txtPassword.setEchoChar('*');
+    }
 
     private void mostrarError(String mensaje) {
         lblMensaje.setForeground(Color.RED);
         lblMensaje.setText(mensaje);
     }
 
-    // 🔹 Clase interna para el fondo con imagen
     static class FondoPanel extends JPanel {
 
         private Image imagen;
@@ -200,5 +251,4 @@ public class PCrearCuenta extends JFrame {
             }
         }
     }
-
 }

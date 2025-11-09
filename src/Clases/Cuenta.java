@@ -11,7 +11,7 @@ import java.time.LocalDate;
  *
  * @author andre
  */
-interface IGestionAlmacenamiento {
+interface GestionCuenta {
 
     boolean guardarCuenta(Cuenta cuenta);
 
@@ -28,7 +28,7 @@ interface IGestionAlmacenamiento {
  * Cuenta implementa la interfaz directamente SIN usar Collections ni Comparator
  * - Solo ciclos básicos
  */
-public class Cuenta implements IGestionAlmacenamiento {
+public class Cuenta implements GestionCuenta {
 
     // Atributos de la cuenta
     private String username;
@@ -56,25 +56,33 @@ public class Cuenta implements IGestionAlmacenamiento {
     // ========== IMPLEMENTACIÓN DE INTERFAZ ==========
     @Override
     public boolean guardarCuenta(Cuenta cuenta) {
-        try {
-            // Verificar si ya existe
-            if (buscarCuenta(cuenta.getUsername()) != null) {
-                return false;
-            }
-            todasCuentas.add(cuenta);
-            return true;
-        } catch (Exception e) {
-            System.err.println("Error al guardar cuenta: " + e.getMessage());
+           try {
+        // No guardar cuentas vacías
+        if (cuenta.username == null || cuenta.username.trim().isEmpty()) {
             return false;
         }
+
+        // Verificar si ya existe una cuenta activa con el mismo nombre
+        for (Cuenta c : todasCuentas) {
+            if (c.username.equalsIgnoreCase(cuenta.username) && c.activo) {
+                return false;
+            }
+        }
+
+        todasCuentas.add(cuenta);
+        return true;
+    } catch (Exception e) {
+        System.err.println("Error al guardar cuenta: " + e.getMessage());
+        return false;
+    }
     }
 
     @Override
     public Cuenta buscarCuenta(String username) {
         try {
-            for (int i = 0; i < todasCuentas.size(); i++) {
-                Cuenta c = todasCuentas.get(i);
-                if (c.username.equalsIgnoreCase(username)) {
+            for (Cuenta c : todasCuentas) {
+                // ✅ Solo considerar cuentas activas
+                if (c.username.equalsIgnoreCase(username) && c.activo) {
                     return c;
                 }
             }
@@ -144,49 +152,37 @@ public class Cuenta implements IGestionAlmacenamiento {
      * Crear nueva cuenta con validaciones
      */
     public static Cuenta crearCuenta(String username, String password) {
-        try {
-            // Validar username no vacío
-            if (username == null || username.trim().isEmpty()) {
-                return null;
-            }
-
-            // Validar password: exactamente 5 caracteres
-            if (password == null || password.length() != 5) {
-                return null;
-            }
-
-            // Verificar que tenga al menos un carácter especial
-            // (NO solo letras y números)
-            boolean tieneEspecial = false;
-            for (int i = 0; i < password.length(); i++) {
-                char c = password.charAt(i);
-                // Si NO es letra Y NO es dígito = es especial
-                if (!Character.isLetter(c) && !Character.isDigit(c)) {
-                    tieneEspecial = true;
-                    break;
-                }
-            }
-
-            if (!tieneEspecial) {
-                return null; // Necesita caracteres especiales
-            }
-
-            // Verificar que username sea único
-            Cuenta temp = new Cuenta("", "");
-            if (temp.buscarCuenta(username) != null) {
-                return null; // Ya existe
-            }
-
-            // Crear y guardar cuenta
-            Cuenta nueva = new Cuenta(username, password);
-            nueva.guardarCuenta(nueva);
-            usuarioActual = nueva;
-            return nueva;
-
-        } catch (Exception e) {
-            System.err.println("Error al crear cuenta: " + e.getMessage());
+         try {
+        if (username == null || username.trim().isEmpty()) {
             return null;
         }
+        if (password == null || password.length() != 5) {
+            return null;
+        }
+
+        // Verificar que todos los caracteres sean especiales
+        for (char c : password.toCharArray()) {
+            if (Character.isLetterOrDigit(c)) {
+                return null;
+            }
+        }
+
+        // Revisar que no exista (solo activos)
+        for (Cuenta c : todasCuentas) {
+            if (c.username.equalsIgnoreCase(username) && c.activo) {
+                return null; // Ya existe
+            }
+        }
+
+        Cuenta nueva = new Cuenta(username, password);
+        nueva.guardarCuenta(nueva);
+        usuarioActual = nueva;
+        return nueva;
+
+    } catch (Exception e) {
+        System.err.println("Error al crear cuenta: " + e.getMessage());
+        return null;
+    }    
     }
 
     /**
@@ -194,18 +190,25 @@ public class Cuenta implements IGestionAlmacenamiento {
      */
     public static boolean iniciarSesion(String username, String password) {
         try {
-            Cuenta temp = new Cuenta("", "");
-            Cuenta cuenta = temp.buscarCuenta(username);
-
-            if (cuenta != null && cuenta.password.equals(password) && cuenta.activo) {
-                usuarioActual = cuenta;
-                return true;
+        // Buscar directamente sin crear cuentas vacías
+        Cuenta cuenta = null;
+        for (Cuenta c : todasCuentas) {
+            if (c.username.equalsIgnoreCase(username) && c.activo) {
+                cuenta = c;
+                break;
             }
-            return false;
-        } catch (Exception e) {
-            System.err.println("Error al iniciar sesión: " + e.getMessage());
-            return false;
         }
+
+        if (cuenta != null && cuenta.password.equals(password)) {
+            usuarioActual = cuenta;
+            return true;
+        }
+        return false;
+
+    } catch (Exception e) {
+        System.err.println("Error al iniciar sesión: " + e.getMessage());
+        return false;
+    }
     }
 
     /**
@@ -225,23 +228,17 @@ public class Cuenta implements IGestionAlmacenamiento {
                 return false;
             }
 
-            // Validar nueva password (5 caracteres)
+            // Validar nueva password: exactamente 5 caracteres
             if (nuevaPassword == null || nuevaPassword.length() != 5) {
                 return false;
             }
 
-            // Verificar caracteres especiales
-            boolean tieneEspecial = false;
+            // Verificar que todos los caracteres sean especiales
             for (int i = 0; i < nuevaPassword.length(); i++) {
                 char c = nuevaPassword.charAt(i);
-                if (!Character.isLetter(c) && !Character.isDigit(c)) {
-                    tieneEspecial = true;
-                    break;
+                if (Character.isLetterOrDigit(c)) {
+                    return false;
                 }
-            }
-
-            if (!tieneEspecial) {
-                return false;
             }
 
             this.password = nuevaPassword;

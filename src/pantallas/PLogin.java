@@ -17,22 +17,19 @@ import java.awt.event.*;
  */
 public class PLogin extends JFrame {
 
+ 
     private JTextField tuser;
     private JPasswordField tcontra;
     private JLabel labelmensaje;
-    private JButton btnLogin;
-    private JButton btnRegresar;
+    private JButton btnLogin, btnRegresar;
 
     public PLogin() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setUndecorated(true);
         setResizable(false);
-
         setTitle("Vampire Wargame - Log In");
         setSize(600, 400);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
-        setResizable(false);
 
         FondoPanel fondoPanel = new FondoPanel();
         fondoPanel.setLayout(new GridBagLayout());
@@ -119,34 +116,51 @@ public class PLogin extends JFrame {
 
         fondoPanel.add(panelCentro, gbc);
 
-        // 🔹 Acciones
+        // ✅ EVENTOS MEJORADOS
         btnRegresar.addActionListener(e -> {
             dispose();
             new MenuDeInicio().setVisible(true);
         });
 
         btnLogin.addActionListener(e -> validarLogin());
+        
+        // Enter para login rápido
+        tcontra.addActionListener(e -> validarLogin());
     }
 
     private void validarLogin() {
-        String username = tuser.getText().trim();
-        String password = new String(tcontra.getPassword());
+        try {
+            String username = tuser.getText().trim();
+            String password = new String(tcontra.getPassword());
 
-        if (Cuenta.iniciarSesion(username, password)) {
-            labelmensaje.setForeground(Color.GREEN);
-            labelmensaje.setText("Inicio de sesión exitoso 🎉");
-            JOptionPane.showMessageDialog(this, "¡Bienvenido " + username + "!");
-            dispose();
-            new MenuPrincipal().setVisible(true);
-        } else {
+            if (username.isEmpty() || password.isEmpty()) {
+                labelmensaje.setForeground(Color.YELLOW);
+                labelmensaje.setText("⚠️ Completa todos los campos");
+                return;
+            }
+
+            if (Cuenta.iniciarSesion(username, password)) {
+                labelmensaje.setForeground(Color.GREEN);
+                labelmensaje.setText("✅ Inicio de sesión exitoso");
+                
+                Timer timer = new Timer(1000, ev -> {
+                    dispose();
+                    new MenuPrincipal().setVisible(true);
+                });
+                timer.setRepeats(false);
+                timer.start();
+            } else {
+                labelmensaje.setForeground(Color.RED);
+                labelmensaje.setText("❌ Usuario o contraseña incorrectos");
+                tcontra.setText("");
+            }
+        } catch (Exception e) {
             labelmensaje.setForeground(Color.RED);
-            labelmensaje.setText("Usuario o contraseña incorrectos ❌");
+            labelmensaje.setText("❌ Error: " + e.getMessage());
         }
     }
 
-    // Clase para el fondo
     static class FondoPanel extends JPanel {
-
         private Image imagen;
 
         @Override
@@ -154,13 +168,11 @@ public class PLogin extends JFrame {
             super.paintComponent(g);
             try {
                 imagen = new ImageIcon(getClass().getResource("/imagenes/FondoLogIn.png")).getImage();
+                g.drawImage(imagen, 0, 0, getWidth(), getHeight(), this);
             } catch (Exception e) {
-                System.err.println("Error al cargar la imagen de fondo: /imagenes/FondoLogIn.png");
                 g.setColor(Color.BLACK);
                 g.fillRect(0, 0, getWidth(), getHeight());
-                return;
             }
-            g.drawImage(imagen, 0, 0, getWidth(), getHeight(), this);
         }
     }
 }

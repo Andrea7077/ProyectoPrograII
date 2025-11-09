@@ -12,8 +12,8 @@ public class Main {
 
     public static void main(String[] args) {
         //  new PLogin().setVisible(true);
-//        new MenuDeInicio().setVisible(true);
-        new MenuPrincipal().setVisible(true);
+        new MenuDeInicio().setVisible(true);
+//        new MenuPrincipal().setVisible(true);
 
         //new PTablero().setVisible(true);
     }
