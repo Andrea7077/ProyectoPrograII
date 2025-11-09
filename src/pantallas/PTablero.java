@@ -179,7 +179,7 @@ public class PTablero extends JFrame {
                 JOptionPane.WARNING_MESSAGE);
 
         if (confirmacion == JOptionPane.YES_OPTION) {
-            String ganador = Tablero.getTurnoActual().equals("BLANCO")
+            String ganador = tableroLogico.getTurnoActual().equals("BLANCO")
                     ? tableroLogico.getJugador2()
                     : tableroLogico.getJugador1();
 
