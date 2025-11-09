@@ -13,9 +13,7 @@ import java.util.Random;
  */
 public class Tablero {
 
-
-
-    private static final int TAMANIO = 6;
+private static final int TAMANIO = 6;
     private Pieza[][] casillas;
     private String jugador1;
     private String jugador2;
@@ -25,7 +23,6 @@ public class Tablero {
     private Random random;
     private InterfazGuardado storage;
 
-    // Constructor con jugadores
     public Tablero(String jugador1, String jugador2) {
         this.jugador1 = jugador1;
         this.jugador2 = jugador2;
@@ -34,39 +31,37 @@ public class Tablero {
         this.piezasPerdidasBlanco = 0;
         this.piezasPerdidasNegro = 0;
         this.random = new Random();
-        this.storage = new Guardado(); // Para guardar logs
+        this.storage = new Guardado();
         inicializarTablero(jugador1, jugador2);
     }
 
     private void inicializarTablero(String jugador1, String jugador2) {
         try {
-            // Jugador 1 (BLANCO) - fila 0
-            casillas[0][0] = new Lobo("BLANCO");
-            casillas[0][1] = new Vampiros("BLANCO");
-            casillas[0][2] = new Muerte("BLANCO");
-            casillas[0][3] = new Muerte("BLANCO");
-            casillas[0][4] = new Vampiros("BLANCO");
-            casillas[0][5] = new Lobo("BLANCO");
+            // ✅ INVERTIDO: Jugador 1 (BLANCO) - fila 5 (ABAJO)
+            casillas[5][0] = new Lobo("BLANCO");
+            casillas[5][1] = new Vampiros("BLANCO");
+            casillas[5][2] = new Muerte("BLANCO");
+            casillas[5][3] = new Muerte("BLANCO");
+            casillas[5][4] = new Vampiros("BLANCO");
+            casillas[5][5] = new Lobo("BLANCO");
 
-            // Actualizar posiciones
-            for (int i = 0; i < TAMANIO; i++) {
-                if (casillas[0][i] != null) {
-                    casillas[0][i].setPosicion(0, i);
-                }
-            }
-
-            // Jugador 2 (NEGRO) - fila 5
-            casillas[5][0] = new Lobo("NEGRO");
-            casillas[5][1] = new Vampiros("NEGRO");
-            casillas[5][2] = new Muerte("NEGRO");
-            casillas[5][3] = new Muerte("NEGRO");
-            casillas[5][4] = new Vampiros("NEGRO");
-            casillas[5][5] = new Lobo("NEGRO");
-
-            // Actualizar posiciones
             for (int i = 0; i < TAMANIO; i++) {
                 if (casillas[5][i] != null) {
                     casillas[5][i].setPosicion(5, i);
+                }
+            }
+
+            // ✅ INVERTIDO: Jugador 2 (NEGRO) - fila 0 (ARRIBA)
+            casillas[0][0] = new Lobo("NEGRO");
+            casillas[0][1] = new Vampiros("NEGRO");
+            casillas[0][2] = new Muerte("NEGRO");
+            casillas[0][3] = new Muerte("NEGRO");
+            casillas[0][4] = new Vampiros("NEGRO");
+            casillas[0][5] = new Lobo("NEGRO");
+
+            for (int i = 0; i < TAMANIO; i++) {
+                if (casillas[0][i] != null) {
+                    casillas[0][i].setPosicion(0, i);
                 }
             }
         } catch (Exception e) {
@@ -149,7 +144,6 @@ public class Tablero {
 
     public String girarRuleta() {
         try {
-            // Contar piezas disponibles del jugador actual (sin zombies)
             ArrayList<String> piezasDisponibles = new ArrayList<>();
 
             for (int i = 0; i < TAMANIO; i++) {
@@ -165,18 +159,15 @@ public class Tablero {
             }
 
             if (piezasDisponibles.isEmpty()) {
-                return null; // No hay piezas disponibles
+                return null;
             }
 
-            // Tipos disponibles en la ruleta
             String[] tipos = {"HOMBRE_LOBO", "VAMPIRO", "MUERTE"};
             String seleccionada = tipos[random.nextInt(tipos.length)];
 
-            // Verificar si el jugador tiene esa pieza
             if (piezasDisponibles.contains(seleccionada)) {
                 return seleccionada;
             } else {
-                // Si no tiene, devolver la primera disponible
                 return piezasDisponibles.get(0);
             }
         } catch (Exception e) {
@@ -194,17 +185,14 @@ public class Tablero {
             Pieza pieza = getPieza(origenX, origenY);
             Pieza destino = getPieza(destinoX, destinoY);
 
-            // Validaciones básicas
             if (pieza == null || destino != null) {
                 return false;
             }
 
-            // Validar que sea movimiento adyacente
             if (!esMovimientoValido(pieza, origenX, origenY, destinoX, destinoY)) {
                 return false;
             }
 
-            // Mover la pieza
             casillas[destinoX][destinoY] = pieza;
             casillas[origenX][origenY] = null;
             pieza.setPosicion(destinoX, destinoY);
@@ -220,7 +208,6 @@ public class Tablero {
             int deltaX = Math.abs(destinoX - origenX);
             int deltaY = Math.abs(destinoY - origenY);
 
-            // Movimiento adyacente (1 casilla en cualquier dirección)
             return deltaX <= 1 && deltaY <= 1;
         } catch (Exception e) {
             System.err.println("Error al validar movimiento: " + e.getMessage());
@@ -239,22 +226,18 @@ public class Tablero {
             int deltaX = Math.abs(destinoX - origenX);
             int deltaY = Math.abs(destinoY - origenY);
 
-            // Validar que sea movimiento de 2 casillas
             if (!((deltaX == 2 && deltaY == 0) || (deltaX == 0 && deltaY == 2) || (deltaX == 2 && deltaY == 2))) {
                 return "Error: El Lobo solo puede moverse 2 casillas en línea recta o diagonal";
             }
 
-            // Validar que el camino esté libre
             if (!caminoLibre(origenX, origenY, destinoX, destinoY)) {
                 return "Error: El camino está obstruido";
             }
 
-            // Validar que el destino esté vacío
             if (getPieza(destinoX, destinoY) != null) {
                 return "Error: El destino debe estar vacío";
             }
 
-            // Mover
             casillas[destinoX][destinoY] = lobo;
             casillas[origenX][origenY] = null;
             lobo.setPosicion(destinoX, destinoY);
@@ -306,14 +289,12 @@ public class Tablero {
                 return "Error: No puedes atacar a tus propias piezas";
             }
 
-            // Validar que sea ataque adyacente
             int deltaX = Math.abs(destinoX - origenX);
             int deltaY = Math.abs(destinoY - origenY);
             if (deltaX > 1 || deltaY > 1) {
                 return "Error: Solo puedes atacar piezas adyacentes";
             }
 
-            // Realizar ataque
             int dano = atacante.getPotenciaAtaque();
             return procesarDano(defensor, dano, destinoX, destinoY, "Ataque Normal", false);
         } catch (Exception e) {
@@ -335,18 +316,16 @@ public class Tablero {
                 return "Error: Objetivo inválido";
             }
 
-            // Validar adyacencia
             int deltaX = Math.abs(destinoX - origenX);
             int deltaY = Math.abs(destinoY - origenY);
             if (deltaX > 1 || deltaY > 1) {
                 return "Error: Debe ser adyacente para chupar sangre";
             }
 
-            // Chupar sangre: quita 1 punto y lo restaura
             String resultado = procesarDano(victima, 1, destinoX, destinoY, "Chupar Sangre", false);
             vampiro.restaurarVida(1);
 
-            return resultado + " | 🩸 Vampiro restauró 1 vida (ahora tiene " + vampiro.getVidas() + " vidas)";
+            return resultado + " | Vampiro restauró 1 vida (ahora tiene " + vampiro.getVidas() + " vidas)";
         } catch (Exception e) {
             System.err.println("Error en chupar sangre: " + e.getMessage());
             return "Error: " + e.getMessage();
@@ -366,14 +345,12 @@ public class Tablero {
                 return "Error: Objetivo inválido";
             }
 
-            // Validar distancia de 2 casillas
             int deltaX = Math.abs(destinoX - origenX);
             int deltaY = Math.abs(destinoY - origenY);
             if (!((deltaX == 2 && deltaY == 0) || (deltaX == 0 && deltaY == 2) || (deltaX == 2 && deltaY == 2))) {
                 return "Error: El objetivo debe estar a exactamente 2 casillas";
             }
 
-            // Lanzar lanza: ignora escudo, hace 2 de daño (mitad de 4)
             int danoDirecto = muerte.getPotenciaAtaque() / 2;
             return procesarDano(objetivo, danoDirecto, destinoX, destinoY, "Lanzar Lanza", true);
         } catch (Exception e) {
@@ -395,12 +372,10 @@ public class Tablero {
                 return "Error: Objetivo inválido";
             }
 
-            // Verificar que haya un zombie adyacente al objetivo
             if (!hayZombieAdyacente(destinoX, destinoY, muerte.getColor())) {
                 return "Error: No hay zombie adyacente al objetivo";
             }
 
-            // Ataque zombie: 1 punto de daño
             return procesarDano(objetivo, 1, destinoX, destinoY, "Ataque Zombie", false);
         } catch (Exception e) {
             System.err.println("Error en ataque zombie: " + e.getMessage());
@@ -420,12 +395,11 @@ public class Tablero {
                 return "Error: La casilla destino no está vacía";
             }
 
-            // Crear zombie
             Zombie zombie = new Zombie(muerte.getColor());
             casillas[destinoX][destinoY] = zombie;
             zombie.setPosicion(destinoX, destinoY);
 
-            return "🧟 Muerte conjuró un Zombie en (" + destinoX + "," + destinoY + ")";
+            return "Muerte conjuró un Zombie en (" + destinoX + "," + destinoY + ")";
         } catch (Exception e) {
             System.err.println("Error al conjurar zombie: " + e.getMessage());
             return "Error: " + e.getMessage();
@@ -439,16 +413,15 @@ public class Tablero {
 
             defensor.recibirDanio(dano, ignorarEscudo);
 
-            String resultado = "⚔️ " + tipoAtaque + " | Daño: " + dano +
+            String resultado = tipoAtaque + " | Daño: " + dano +
                     " | " + defensor.getTipo() +
                     " | Escudo: " + defensor.getEscudo() + " (antes: " + escudoAntes + ")" +
                     " | Vidas: " + defensor.getVidas() + " (antes: " + vidasAntes + ")";
 
-            // Eliminar si murió
             if (!defensor.estaVivo()) {
                 casillas[x][y] = null;
                 contarPiezaPerdida(defensor.getColor());
-                resultado += " | 💀 ¡PIEZA DESTRUIDA!";
+                resultado += " | PIEZA DESTRUIDA!";
             }
 
             return resultado;
@@ -482,13 +455,11 @@ public class Tablero {
 
     public void finalizarPartida(String ganador, String tipo) {
         try {
-            // Otorgar 3 puntos al ganador usando el sistema de Jugador
             Jugador jugadorGanador = storage.obtenerPlayer(ganador);
             if (jugadorGanador != null) {
                 jugadorGanador.agregarPuntos(3);
             }
 
-            // Guardar log de la partida
             String mensaje;
             if (tipo.equals("RETIRO")) {
                 String perdedor = ganador.equals(jugador1) ? jugador2 : jugador1;

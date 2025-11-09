@@ -22,10 +22,8 @@ public class PTablero extends JFrame {
     private JButton btnGirarRuleta, btnRetirarse;
     private JTextArea areaLog;
     
-    // Cache de imágenes
     private HashMap<String, ImageIcon> cacheImagenes = new HashMap<>();
     
-    // Variables de control
     private String piezaPermitida = null;
     private int filaSeleccionada = -1;
     private int colSeleccionada = -1;
@@ -40,12 +38,8 @@ public class PTablero extends JFrame {
         String jugador2 = seleccionarOponente();
         
         if (jugador2 == null) {
-            JOptionPane.showMessageDialog(this,
-                "No hay oponentes disponibles en el sistema.",
-                "Error", JOptionPane.ERROR_MESSAGE);
-            dispose();
-            new MenuPrincipal().setVisible(true);
-            return;
+            // Si no hay oponentes, crear "Jugador2" automático
+            jugador2 = "Jugador2";
         }
         
         tableroLogico = new Tablero(jugador1, jugador2);
@@ -70,7 +64,7 @@ public class PTablero extends JFrame {
         }
         
         if (oponentes.isEmpty()) {
-            return null;
+            return null; // Retornar null para usar "Jugador2"
         }
         
         String[] opciones = oponentes.toArray(new String[0]);
@@ -84,7 +78,7 @@ public class PTablero extends JFrame {
             opciones[0]
         );
         
-        return seleccionado;
+        return seleccionado != null ? seleccionado : null;
     }
 
     private void precargarImagenes() {
@@ -161,18 +155,15 @@ public class PTablero extends JFrame {
         ));
         panel.setPreferredSize(new Dimension(320, 0));
 
-        // Título
-        JLabel lblRuleta = new JLabel("🎰 RULETA MÁGICA", SwingConstants.CENTER);
+        JLabel lblRuleta = new JLabel("🎰 RULETA", SwingConstants.CENTER);
         lblRuleta.setForeground(new Color(255, 215, 0));
         lblRuleta.setFont(new Font("Serif", Font.BOLD, 20));
         lblRuleta.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Ruleta
         ruletaPanel = new RuletaPanel();
-        ruletaPanel.setMaximumSize(new Dimension(270, 270));
+        ruletaPanel.setMaximumSize(new Dimension(270, 180));
         ruletaPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Botón Girar
         btnGirarRuleta = new JButton("⚡ GIRAR RULETA");
         btnGirarRuleta.setFont(new Font("Arial", Font.BOLD, 16));
         btnGirarRuleta.setBackground(new Color(139, 0, 0));
@@ -181,13 +172,8 @@ public class PTablero extends JFrame {
         btnGirarRuleta.setMaximumSize(new Dimension(240, 55));
         btnGirarRuleta.setFocusPainted(false);
         btnGirarRuleta.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnGirarRuleta.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(200, 0, 0), 2),
-            BorderFactory.createEmptyBorder(5, 15, 5, 15)
-        ));
         btnGirarRuleta.addActionListener(e -> girarRuleta());
 
-        // Botón Retirarse
         btnRetirarse = new JButton("🏳️ RETIRARSE");
         btnRetirarse.setFont(new Font("Arial", Font.BOLD, 14));
         btnRetirarse.setBackground(new Color(70, 0, 0));
@@ -198,8 +184,7 @@ public class PTablero extends JFrame {
         btnRetirarse.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnRetirarse.addActionListener(e -> retirarse());
 
-        // Log
-        JLabel lblLog = new JLabel("📜 Historial de Juego", SwingConstants.CENTER);
+        JLabel lblLog = new JLabel("📜 Historial", SwingConstants.CENTER);
         lblLog.setForeground(new Color(255, 215, 0));
         lblLog.setFont(new Font("Arial", Font.BOLD, 15));
         lblLog.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -212,7 +197,7 @@ public class PTablero extends JFrame {
         areaLog.setLineWrap(true);
         areaLog.setWrapStyleWord(true);
         JScrollPane scrollLog = new JScrollPane(areaLog);
-        scrollLog.setMaximumSize(new Dimension(290, 250));
+        scrollLog.setMaximumSize(new Dimension(290, 280));
         scrollLog.setBorder(BorderFactory.createLineBorder(new Color(100, 100, 120), 2));
 
         panel.add(lblRuleta);
@@ -234,17 +219,14 @@ public class PTablero extends JFrame {
     }
 
     // ========================================
-    // RULETA 3x3 CON PAINTCOMPONENT
+    // RULETA SIMPLIFICADA (2x3)
     // ========================================
     private class RuletaPanel extends JPanel {
-        private String[] piezas = {"LOBO", "MUERTE", "VAMPIRO", "LOBO", "MUERTE", "VAMPIRO", "LOBO", "MUERTE", "VAMPIRO"};
+        private String[] piezas = {"LOBO", "MUERTE", "VAMPIRO", "LOBO", "MUERTE", "VAMPIRO"};
         private Color[] colores = {
-            new Color(150, 75, 0),    // Lobo - Marrón
-            new Color(100, 0, 150),   // Muerte - Púrpura
-            new Color(180, 0, 0),     // Vampiro - Rojo
-            new Color(150, 75, 0),
-            new Color(100, 0, 150),
-            new Color(180, 0, 0),
+            new Color(150, 75, 0),    // Lobo
+            new Color(100, 0, 150),   // Muerte
+            new Color(180, 0, 0),     // Vampiro
             new Color(150, 75, 0),
             new Color(100, 0, 150),
             new Color(180, 0, 0)
@@ -254,7 +236,7 @@ public class PTablero extends JFrame {
         private Random random = new Random();
 
         public RuletaPanel() {
-            setPreferredSize(new Dimension(270, 270));
+            setPreferredSize(new Dimension(270, 180));
             setOpaque(false);
         }
 
@@ -286,61 +268,53 @@ public class PTablero extends JFrame {
             Graphics2D g2 = (Graphics2D) g;
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            int cellSize = 80;
-            int startX = (getWidth() - (cellSize * 3)) / 2;
-            int startY = (getHeight() - (cellSize * 3)) / 2;
+            int cellWidth = 80;
+            int cellHeight = 70;
+            int startX = (getWidth() - (cellWidth * 3)) / 2;
+            int startY = (getHeight() - (cellHeight * 2)) / 2;
 
-            // Dibujar cuadrícula 3x3
-            for (int i = 0; i < 9; i++) {
+            // Dibujar cuadrícula 2x3
+            for (int i = 0; i < 6; i++) {
                 int row = i / 3;
                 int col = i % 3;
-                int x = startX + (col * cellSize);
-                int y = startY + (row * cellSize);
+                int x = startX + (col * cellWidth);
+                int y = startY + (row * cellHeight);
 
                 // Color de fondo
                 g2.setColor(colores[i]);
-                g2.fillRoundRect(x, y, cellSize - 5, cellSize - 5, 15, 15);
+                g2.fillRoundRect(x, y, cellWidth - 5, cellHeight - 5, 15, 15);
 
                 // Borde dorado si está seleccionado
                 if (i == indiceSeleccionado) {
                     g2.setColor(new Color(255, 215, 0));
                     g2.setStroke(new BasicStroke(4));
-                    g2.drawRoundRect(x, y, cellSize - 5, cellSize - 5, 15, 15);
+                    g2.drawRoundRect(x, y, cellWidth - 5, cellHeight - 5, 15, 15);
                 } else {
                     g2.setColor(new Color(0, 0, 0, 150));
                     g2.setStroke(new BasicStroke(2));
-                    g2.drawRoundRect(x, y, cellSize - 5, cellSize - 5, 15, 15);
+                    g2.drawRoundRect(x, y, cellWidth - 5, cellHeight - 5, 15, 15);
                 }
 
-                // Emoji
-                g2.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 35));
-                String emoji = getEmoji(piezas[i]);
+                // Texto simplificado
+                g2.setFont(new Font("Arial", Font.BOLD, 14));
+                String texto = piezas[i];
                 FontMetrics fm = g2.getFontMetrics();
-                int emojiX = x + (cellSize - fm.stringWidth(emoji)) / 2;
-                int emojiY = y + ((cellSize - fm.getHeight()) / 2) + fm.getAscent();
+                int textX = x + (cellWidth - fm.stringWidth(texto)) / 2;
+                int textY = y + ((cellHeight - fm.getHeight()) / 2) + fm.getAscent();
                 
                 // Sombra
                 g2.setColor(new Color(0, 0, 0, 180));
-                g2.drawString(emoji, emojiX + 2, emojiY + 2);
+                g2.drawString(texto, textX + 2, textY + 2);
                 
-                // Emoji principal
+                // Texto principal
                 g2.setColor(Color.WHITE);
-                g2.drawString(emoji, emojiX, emojiY);
+                g2.drawString(texto, textX, textY);
             }
 
-            // Marco exterior dorado
+            // Marco exterior
             g2.setColor(new Color(255, 215, 0));
             g2.setStroke(new BasicStroke(5));
-            g2.drawRoundRect(startX - 5, startY - 5, (cellSize * 3) + 5, (cellSize * 3) + 5, 20, 20);
-        }
-
-        private String getEmoji(String tipo) {
-            switch (tipo) {
-                case "VAMPIRO": return "🧛";
-                case "LOBO": return "🐺";
-                case "MUERTE": return "💀";
-                default: return "❓";
-            }
+            g2.drawRoundRect(startX - 5, startY - 5, (cellWidth * 3) + 5, (cellHeight * 2) + 5, 20, 20);
         }
 
         public String getPiezaSeleccionada() {
@@ -417,13 +391,14 @@ public class PTablero extends JFrame {
                 ? tableroLogico.getJugador2() 
                 : tableroLogico.getJugador1();
             
+            String perdedor = tableroLogico.getTurnoActual().equals("BLANCO") 
+                ? tableroLogico.getJugador1() 
+                : tableroLogico.getJugador2();
+            
             tableroLogico.finalizarPartida(ganador, "RETIRO");
             
-            // Actualizar puntos del ganador
-            Cuenta cuentaGanadora = Cuenta.getUsuarioActual().buscarCuenta(ganador);
-            if (cuentaGanadora != null) {
-                cuentaGanadora.registrarPartida(true);
-            }
+            // Registrar para AMBOS jugadores
+            registrarPartidaParaAmbos(ganador, perdedor, true);
             
             JOptionPane.showMessageDialog(this,
                     "🏆 ¡" + ganador + " ha ganado por retiro!\n+3 puntos",
@@ -563,12 +538,14 @@ public class PTablero extends JFrame {
     private void finalizarTurno() {
         String ganador = tableroLogico.verificarGanador();
         if (ganador != null) {
+            String perdedor = ganador.equals(tableroLogico.getJugador1()) 
+                ? tableroLogico.getJugador2() 
+                : tableroLogico.getJugador1();
+            
             tableroLogico.finalizarPartida(ganador, "VICTORIA");
             
-            Cuenta cuentaGanadora = Cuenta.getUsuarioActual().buscarCuenta(ganador);
-            if (cuentaGanadora != null) {
-                cuentaGanadora.registrarPartida(true);
-            }
+            // Registrar para AMBOS jugadores
+            registrarPartidaParaAmbos(ganador, perdedor, false);
             
             JOptionPane.showMessageDialog(this,
                     "🏆 ¡" + ganador + " ha ganado la partida!\n+3 puntos",
@@ -587,10 +564,22 @@ public class PTablero extends JFrame {
         cambiarTurno();
     }
 
+    private void registrarPartidaParaAmbos(String ganador, String perdedor, boolean retiro) {
+        Cuenta cuentaGanadora = Cuenta.getUsuarioActual().buscarCuenta(ganador);
+        Cuenta cuentaPerdedora = Cuenta.getUsuarioActual().buscarCuenta(perdedor);
+        
+        if (cuentaGanadora != null) {
+            cuentaGanadora.registrarPartida(true); // Ganó
+        }
+        
+        if (cuentaPerdedora != null) {
+            cuentaPerdedora.registrarPartida(false); // Perdió
+        }
+    }
+
     private void cambiarTurno() {
         tableroLogico.cambiarTurno();
         
-        // Calcular giros permitidos según piezas perdidas
         int piezasPerdidas = 6 - contarPiezasPrincipales(tableroLogico.getTurnoActual());
         if (piezasPerdidas >= 4) {
             girosRestantes = 3;
@@ -633,10 +622,10 @@ public class PTablero extends JFrame {
 
     private String getNombreCompleto(String tipo) {
         switch (tipo) {
-            case "HOMBRE_LOBO": return "Hombre Lobo 🐺";
-            case "VAMPIRO": return "Vampiro 🧛";
-            case "MUERTE": return "Muerte 💀";
-            case "ZOMBIE": return "Zombie 🧟";
+            case "HOMBRE_LOBO": return "Hombre Lobo";
+            case "VAMPIRO": return "Vampiro";
+            case "MUERTE": return "Muerte";
+            case "ZOMBIE": return "Zombie";
             default: return tipo;
         }
     }
@@ -699,7 +688,6 @@ public class PTablero extends JFrame {
             this.fila = fila;
             this.col = col;
             
-            // Colores mejorados del tablero
             colorBase = ((fila + col) % 2 == 0) ? 
                 new Color(245, 222, 179) : new Color(139, 69, 19);
             
@@ -722,13 +710,11 @@ public class PTablero extends JFrame {
             java.awt.Color bordeColor = new Color(80, 40, 10);
             int bordeTamaño = 2;
             
-            // HIGHLIGHT: Pieza seleccionada
             if (fila == filaSeleccionada && col == colSeleccionada) {
                 colorActual = new Color(255, 215, 0, 200);
                 bordeColor = new Color(255, 215, 0);
                 bordeTamaño = 5;
             } 
-            // HIGHLIGHT: Destinos válidos
             else if (esperandoDestino && filaSeleccionada != -1) {
                 Pieza seleccionada = tableroLogico.getPieza(filaSeleccionada, colSeleccionada);
                 
@@ -748,7 +734,6 @@ public class PTablero extends JFrame {
             setBackground(colorActual);
             setBorder(BorderFactory.createLineBorder(bordeColor, bordeTamaño));
             
-            // Mostrar pieza
             if (pieza != null) {
                 String key = pieza.getTipo().toLowerCase() + "_" + pieza.getColor().toLowerCase();
                 ImageIcon icono = cacheImagenes.get(key);
@@ -760,8 +745,8 @@ public class PTablero extends JFrame {
                     setIcon(null);
                     String emoji = getEmojiPieza(pieza);
                     setText("<html><center><font size='8'>" + emoji + "</font><br><font size='2' color='" + 
-                            (pieza.getColor().equals("BLANCO") ? "blue" : "red") + "'>❤" + pieza.getVidas() + 
-                            " 🛡" + pieza.getEscudo() + "</font></center></html>");
+                            (pieza.getColor().equals("BLANCO") ? "blue" : "red") + "'>V:" + pieza.getVidas() + 
+                            " E:" + pieza.getEscudo() + "</font></center></html>");
                 }
                 
                 setForeground(pieza.getColor().equals("BLANCO") ? 
