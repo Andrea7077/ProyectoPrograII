@@ -10,56 +10,39 @@ package Clases;
  */
 public abstract class Pieza {
 
-    protected String tipo;
     protected String color; // "BLANCO" o "NEGRO"
-    protected int fila;
-    protected int columna;
     protected int vidas;
     protected int escudo;
-    protected int ataque;
+    protected int potenciaAtaque;
+    protected int posX;
+    protected int posY;
+    protected String tipo; // "VAMPIRO", "HOMBRE_LOBO", "MUERTE", "ZOMBIE"
 
-    public Pieza(String tipo, String color, int fila, int columna, int vidas, int escudo, int ataque) {
-        this.tipo = tipo;
+    public Pieza(String color, int vidas, int escudo, int potenciaAtaque, String tipo) {
         this.color = color;
-        this.fila = fila;
-        this.columna = columna;
         this.vidas = vidas;
         this.escudo = escudo;
-        this.ataque = ataque;
+        this.potenciaAtaque = potenciaAtaque;
+        this.tipo = tipo;
     }
 
-    /**
-     * Método abstracto para validar movimientos CUMPLE REQUISITO: Función
-     * abstracta
-     */
-    public abstract boolean puedeMoverse(int filaDestino, int colDestino, Tablero tablero);
+    // Métodos abstractos (polimorfismo)
+    public abstract void atacar(Pieza enemigo);
 
-    /**
-     * Método abstracto para ataques especiales
-     */
-    public abstract boolean puedeAtaqueEspecial(int filaDestino, int colDestino, Tablero tablero, String tipoAtaque);
+    public abstract boolean puedeRealizarAtaqueEspecial(Tablero tablero, int destinoX, int destinoY);
 
-    /**
-     * Mover a casilla adyacente (regla general para todas las piezas)
-     */
-    public boolean esMovimientoAdyacente(int filaDestino, int colDestino) {
-        int deltaFila = Math.abs(filaDestino - fila);
-        int deltaCol = Math.abs(colDestino - columna);
-        return deltaFila <= 1 && deltaCol <= 1 && !(deltaFila == 0 && deltaCol == 0);
-    }
+    public abstract void ataqueEspecial(Tablero tablero, int destinoX, int destinoY);
 
-    /**
-     * Recibir daño (primero escudo, luego vidas)
-     */
-    public void recibirDano(int danio, boolean ignorarEscudo) {
+    // Método para recibir daño
+    public void recibirDanio(int danio, boolean ignorarEscudo) {
         if (ignorarEscudo) {
             vidas -= danio;
         } else {
             if (escudo > 0) {
-                int danoRestante = danio - escudo;
+                int danioRestante = danio - escudo;
                 escudo = Math.max(0, escudo - danio);
-                if (danoRestante > 0) {
-                    vidas -= danoRestante;
+                if (danioRestante > 0) {
+                    vidas -= danioRestante;
                 }
             } else {
                 vidas -= danio;
@@ -68,32 +51,24 @@ public abstract class Pieza {
         vidas = Math.max(0, vidas);
     }
 
-    /**
-     * Restaurar vida (usado por vampiros)
-     */
+    public boolean estaVivo() {
+        return vidas > 0;
+    }
+
     public void restaurarVida(int cantidad) {
         vidas += cantidad;
     }
 
-    public boolean estaViva() {
-        return vidas > 0;
+    // Validar movimiento básico (1 casilla en cualquier dirección)
+    public boolean puedeMoverse(int origenX, int origenY, int destinoX, int destinoY) {
+        int difX = Math.abs(destinoX - origenX);
+        int difY = Math.abs(destinoY - origenY);
+        return difX <= 1 && difY <= 1 && !(difX == 0 && difY == 0);
     }
 
     // Getters y Setters
-    public String getTipo() {
-        return tipo;
-    }
-
     public String getColor() {
         return color;
-    }
-
-    public int getFila() {
-        return fila;
-    }
-
-    public int getColumna() {
-        return columna;
     }
 
     public int getVidas() {
@@ -104,25 +79,26 @@ public abstract class Pieza {
         return escudo;
     }
 
-    public int getAtaque() {
-        return ataque;
+    public int getPotenciaAtaque() {
+        return potenciaAtaque;
     }
 
-    public void setFila(int fila) {
-        this.fila = fila;
+    public String getTipo() {
+        return tipo;
     }
 
-    public void setColumna(int columna) {
-        this.columna = columna;
+    public int getPosX() {
+        return posX;
     }
 
-    @Override
-    public String toString() {
-        return color.charAt(0) + "-" + tipo;
+    public int getPosY() {
+        return posY;
     }
 
-    public String getEstadoCompleto() {
-        return String.format("%s: Vidas=%d, Escudo=%d, Ataque=%d",
-                toString(), vidas, escudo, ataque);
+    public void setPosicion(int x, int y) {
+        this.posX = x;
+        this.posY = y;
     }
 }
+
+
