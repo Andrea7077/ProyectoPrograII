@@ -110,9 +110,9 @@ public class MenuDeInicio extends JFrame {
         public FondoPanel() {
             try {
 
-                imagen = new ImageIcon(getClass().getResource("/imagenes/sdfgn.jpg")).getImage();
+                imagen = new ImageIcon(getClass().getResource("/imagenes/FondoMenu1.jpg")).getImage();
             } catch (Exception e) {
-                System.err.println("ERROR: No se pudo cargar la imagen de fondo: /imagenes/FondoMenu.png");
+                System.err.println("ERROR: No se pudo cargar la imagen de fondo: /imagenes/FondoMenu1.png");
                 setBackground(Color.BLACK);
             }
         }
