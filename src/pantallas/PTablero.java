@@ -10,8 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 /**
- *
- * @author andre
+ * Pantalla del Tablero - MEJORADA Y FUNCIONAL
  */
 public class PTablero extends JFrame {
 
@@ -21,7 +20,7 @@ public class PTablero extends JFrame {
     private JLabel lblTurno, lblPiezaSeleccionada, lblMensaje;
     private JButton btnRuleta, btnRetirarse;
     private JTextArea areaLog;
-
+    
     // Variables de control del juego
     private String piezaPermitida = null;
     private int filaSeleccionada = -1;
@@ -30,16 +29,16 @@ public class PTablero extends JFrame {
 
     public PTablero() {
         super("Vampire Wargame");
-
+        
         // Crear tablero lógico (temporalmente con usuarios de prueba)
         Cuenta usuario = Cuenta.getUsuarioActual();
         String jugador1 = (usuario != null) ? usuario.getUsername() : "Jugador1";
         String jugador2 = "Jugador2"; // Después agregarás selector
-
+        
         tableroLogico = new Tablero(jugador1, jugador2);
-
+        
         inicializarComponentes();
-
+        
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(900, 700);
         setLocationRelativeTo(null);
@@ -145,14 +144,14 @@ public class PTablero extends JFrame {
         try {
             int giros = tableroLogico.vecesPermitidasGirarRuleta();
             boolean piezaEncontrada = false;
-
+            
             for (int i = 0; i < giros && !piezaEncontrada; i++) {
                 piezaPermitida = tableroLogico.girarRuleta();
                 if (piezaPermitida != null) {
                     piezaEncontrada = true;
                 }
             }
-
+            
             if (piezaPermitida != null) {
                 lblPiezaSeleccionada.setText("🎲 Pieza seleccionada: " + getNombreCompleto(piezaPermitida));
                 lblMensaje.setText("Selecciona una pieza " + getNombreCompleto(piezaPermitida) + " para mover");
@@ -177,19 +176,19 @@ public class PTablero extends JFrame {
                 "Confirmar Retiro",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE);
-
+        
         if (confirmacion == JOptionPane.YES_OPTION) {
-            String ganador = tableroLogico.getTurnoActual().equals("BLANCO")
-                    ? tableroLogico.getJugador2()
-                    : tableroLogico.getJugador1();
-
+            String ganador = tableroLogico.getTurnoActual().equals("BLANCO") 
+                ? tableroLogico.getJugador2() 
+                : tableroLogico.getJugador1();
+            
             tableroLogico.finalizarPartida(ganador, "RETIRO");
-
+            
             JOptionPane.showMessageDialog(this,
                     "¡" + ganador + " ha ganado por retiro!",
                     "Fin del Juego",
                     JOptionPane.INFORMATION_MESSAGE);
-
+            
             dispose();
             new MenuPrincipal().setVisible(true);
         }
@@ -230,7 +229,8 @@ public class PTablero extends JFrame {
                 esperandoDestino = true;
                 lblMensaje.setText("✅ Pieza seleccionada. Ahora elige el destino o enemigo");
                 tableroGUI.repaint();
-            } // Segunda selección: elegir destino o enemigo
+            } 
+            // Segunda selección: elegir destino o enemigo
             else {
                 realizarAccion(fila, col);
             }
@@ -250,7 +250,7 @@ public class PTablero extends JFrame {
             if (destino == null) {
                 // Preguntar si es movimiento especial (Muerte puede conjurar zombie)
                 Pieza piezaOrigen = tableroLogico.getPieza(filaSeleccionada, colSeleccionada);
-
+                
                 if (piezaOrigen instanceof Muerte) {
                     String[] opciones = {"Mover", "Conjurar Zombie"};
                     int opcion = JOptionPane.showOptionDialog(this,
@@ -259,7 +259,7 @@ public class PTablero extends JFrame {
                             JOptionPane.DEFAULT_OPTION,
                             JOptionPane.QUESTION_MESSAGE,
                             null, opciones, opciones[0]);
-
+                    
                     if (opcion == 1) {
                         String resultado = tableroLogico.conjurarZombie(
                                 filaSeleccionada, colSeleccionada, filaDestino, colDestino);
@@ -272,7 +272,7 @@ public class PTablero extends JFrame {
                     // Preguntar si quiere moverse 2 casillas
                     int deltaFila = Math.abs(filaDestino - filaSeleccionada);
                     int deltaCol = Math.abs(colDestino - colSeleccionada);
-
+                    
                     if (deltaFila == 2 || deltaCol == 2) {
                         String resultado = tableroLogico.loboMover2Casillas(
                                 filaSeleccionada, colSeleccionada, filaDestino, colDestino);
@@ -282,11 +282,11 @@ public class PTablero extends JFrame {
                         return;
                     }
                 }
-
+                
                 // Movimiento normal
                 boolean movido = tableroLogico.moverPieza(
                         filaSeleccionada, colSeleccionada, filaDestino, colDestino);
-
+                
                 if (movido) {
                     agregarLog("Movimiento exitoso a (" + filaDestino + "," + colDestino + ")");
                     lblMensaje.setText("✅ Pieza movida exitosamente");
@@ -294,19 +294,20 @@ public class PTablero extends JFrame {
                 } else {
                     lblMensaje.setText("❌ Movimiento inválido");
                 }
-            } // Si hay una pieza enemiga, atacar
+            } 
+            // Si hay una pieza enemiga, atacar
             else if (!destino.getColor().equals(tableroLogico.getTurnoActual())) {
                 // Preguntar tipo de ataque
                 Pieza atacante = tableroLogico.getPieza(filaSeleccionada, colSeleccionada);
                 String[] opciones = obtenerOpcionesAtaque(atacante);
-
+                
                 int opcion = JOptionPane.showOptionDialog(this,
                         "Selecciona el tipo de ataque:",
                         "Tipo de Ataque",
                         JOptionPane.DEFAULT_OPTION,
                         JOptionPane.QUESTION_MESSAGE,
                         null, opciones, opciones[0]);
-
+                
                 String resultado = ejecutarAtaque(opcion, atacante, filaDestino, colDestino);
                 agregarLog(resultado);
                 lblMensaje.setText(resultado);
@@ -389,16 +390,11 @@ public class PTablero extends JFrame {
 
     private String getNombreCompleto(String tipo) {
         switch (tipo) {
-            case "LOBO":
-                return "Hombre Lobo";
-            case "VAMP":
-                return "Vampiro";
-            case "MUER":
-                return "Muerte";
-            case "ZOMB":
-                return "Zombie";
-            default:
-                return tipo;
+            case "LOBO": return "Hombre Lobo";
+            case "VAMP": return "Vampiro";
+            case "MUER": return "Muerte";
+            case "ZOMB": return "Zombie";
+            default: return tipo;
         }
     }
 
@@ -411,14 +407,13 @@ public class PTablero extends JFrame {
     // CLASE INTERNA: TableroPanel
     // ========================================
     private class TableroPanel extends JPanel {
-
         private JButton[][] casillas;
 
         public TableroPanel() {
             setLayout(new GridLayout(TAMANO_TABLERO, TAMANO_TABLERO, 2, 2));
             setBackground(new Color(50, 50, 60));
             setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
+            
             casillas = new JButton[TAMANO_TABLERO][TAMANO_TABLERO];
             crearCasillas();
             actualizarTablero();
@@ -454,16 +449,16 @@ public class PTablero extends JFrame {
 
         public void actualizarTablero() {
             Pieza[][] tablero = tableroLogico.getCasillas();
-
+            
             for (int f = 0; f < TAMANO_TABLERO; f++) {
                 for (int c = 0; c < TAMANO_TABLERO; c++) {
                     Pieza pieza = tablero[f][c];
                     JButton boton = casillas[f][c];
-
+                    
                     if (pieza != null) {
                         boton.setText(pieza.toString());
                         boton.setForeground(pieza.getColor().equals("BLANCO") ? Color.RED : Color.BLUE);
-
+                        
                         // Resaltar pieza seleccionada
                         if (f == filaSeleccionada && c == colSeleccionada) {
                             boton.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 3));
