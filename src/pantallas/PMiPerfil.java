@@ -56,7 +56,6 @@ public class PMiPerfil extends JFrame {
         c.insets = new Insets(10, 15, 10, 15);
         c.fill = GridBagConstraints.HORIZONTAL;
 
-        // Título
         JLabel lblTitulo = new JLabel("👤 MI PERFIL", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Serif", Font.BOLD, 38));
         lblTitulo.setForeground(new Color(255, 70, 70));
@@ -65,44 +64,36 @@ public class PMiPerfil extends JFrame {
         c.gridwidth = 2;
         panel.add(lblTitulo, c);
 
-        // Separador
         JSeparator sep1 = new JSeparator();
         sep1.setPreferredSize(new Dimension(480, 2));
         sep1.setForeground(new Color(139, 0, 0));
         c.gridy++;
         panel.add(sep1, c);
 
-        // Panel de información
         JPanel infoPanel = new JPanel(new GridLayout(6, 2, 12, 12));
         infoPanel.setOpaque(false);
         infoPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
 
-        // Username
         infoPanel.add(crearLabel("Usuario:"));
         lblUsername = crearLabelValor("");
         infoPanel.add(lblUsername);
 
-        // Puntos
         infoPanel.add(crearLabel("Puntos:"));
         lblPuntos = crearLabelValor("");
         infoPanel.add(lblPuntos);
 
-        // Fecha
         infoPanel.add(crearLabel("Miembro desde:"));
         lblFecha = crearLabelValor("");
         infoPanel.add(lblFecha);
 
-        // Partidas jugadas
         infoPanel.add(crearLabel("Partidas jugadas:"));
         lblPartidas = crearLabelValor("");
         infoPanel.add(lblPartidas);
 
-        // Partidas ganadas
         infoPanel.add(crearLabel("Partidas ganadas:"));
         lblGanadas = crearLabelValor("");
         infoPanel.add(lblGanadas);
 
-        // Porcentaje
         infoPanel.add(crearLabel("Tasa de victoria:"));
         lblPorcentaje = crearLabelValor("");
         infoPanel.add(lblPorcentaje);
@@ -111,24 +102,22 @@ public class PMiPerfil extends JFrame {
         c.gridwidth = 2;
         panel.add(infoPanel, c);
 
-        // Separador
         JSeparator sep2 = new JSeparator();
         sep2.setPreferredSize(new Dimension(480, 2));
         sep2.setForeground(new Color(139, 0, 0));
         c.gridy++;
         panel.add(sep2, c);
 
-        // Botones
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         btnPanel.setOpaque(false);
 
-        btnCambiarPassword = crearBoton("🔑 Cambiar Contraseña", new Color(139, 0, 0));
+        btnCambiarPassword = crearBoton("Cambiar Contraseña", new Color(139, 0, 0));
         btnCambiarPassword.addActionListener(e -> new VentanaCambiarPassword(this, usuario).setVisible(true));
 
-        btnEliminarCuenta = crearBoton("🗑️ Eliminar Cuenta", new Color(100, 0, 0));
+        btnEliminarCuenta = crearBoton("Eliminar Cuenta", new Color(100, 0, 0));
         btnEliminarCuenta.addActionListener(e -> eliminarCuenta());
 
-        btnRegresar = crearBoton("⬅️ Regresar al Menú", new Color(70, 70, 90));
+        btnRegresar = crearBoton("Regresar al Menú", new Color(70, 70, 90));
         btnRegresar.addActionListener(e -> {
             dispose();
             new MenuPrincipal().setVisible(true);
@@ -181,11 +170,10 @@ public class PMiPerfil extends JFrame {
     }
 
     private void eliminarCuenta() {
-        // Crear panel personalizado para el diálogo
         JPanel panel = new JPanel(new GridLayout(3, 1, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
-        JLabel lblAdvertencia = new JLabel("⚠️ ESTA ACCIÓN NO SE PUEDE DESHACER");
+        JLabel lblAdvertencia = new JLabel("Cuidado, ¡No puedes restaurar tu cuenta una vez sea eliminada!");
         lblAdvertencia.setFont(new Font("Arial", Font.BOLD, 14));
         lblAdvertencia.setForeground(Color.RED);
         lblAdvertencia.setHorizontalAlignment(SwingConstants.CENTER);
@@ -202,7 +190,7 @@ public class PMiPerfil extends JFrame {
         int opcion = JOptionPane.showConfirmDialog(
                 this,
                 panel,
-                "🗑️ Confirmar Eliminación de Cuenta",
+                "Eliminar Cuenta",
                 JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.WARNING_MESSAGE
         );
@@ -212,7 +200,7 @@ public class PMiPerfil extends JFrame {
             
             if (password.isEmpty()) {
                 JOptionPane.showMessageDialog(this,
-                        "❌ Debes ingresar tu contraseña",
+                        "Debes ingresar tu contraseña",
                         "Error",
                         JOptionPane.ERROR_MESSAGE);
                 return;
@@ -220,7 +208,7 @@ public class PMiPerfil extends JFrame {
 
             if (Cuenta.eliminarCuentaActual(password)) {
                 JOptionPane.showMessageDialog(this,
-                        "✅ Cuenta eliminada exitosamente\nSerás redirigido al menú de inicio",
+                        "Cuenta eliminada exitosamente\nSerás redirigido al menú de inicio",
                         "Cuenta Eliminada",
                         JOptionPane.INFORMATION_MESSAGE);
                 
@@ -228,7 +216,7 @@ public class PMiPerfil extends JFrame {
                 new MenuDeInicio().setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(this,
-                        "❌ Contraseña incorrecta\nNo se pudo eliminar la cuenta",
+                        "Contraseña incorrecta\nNo se pudo eliminar la cuenta",
                         "Error",
                         JOptionPane.ERROR_MESSAGE);
             }
@@ -241,7 +229,7 @@ public class PMiPerfil extends JFrame {
 
         public FondoPanel() {
             try {
-                imagen = new ImageIcon(getClass().getResource("/imagenes/fondomiperfil.jpg")).getImage();
+                imagen = new ImageIcon(getClass().getResource("/imagenes/fondomiperfil.png")).getImage();
             } catch (Exception e) {
                 setBackground(new Color(20, 20, 30));
             }

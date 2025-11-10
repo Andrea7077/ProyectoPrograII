@@ -138,7 +138,6 @@ public class PCrearCuenta extends JFrame {
 
         fondo.add(panelCentro, gbc);
 
-        // ✅ EVENTOS MEJORADOS
         btnCrear.addActionListener(e -> crearCuenta());
         btnCancelar.addActionListener(e -> limpiarCampos());
         btnRegresar.addActionListener(e -> {
@@ -154,18 +153,16 @@ public class PCrearCuenta extends JFrame {
             String username = txtUsername.getText().trim();
             String password = new String(txtPassword.getPassword());
 
-            // ⚠️ Validaciones visuales
             if (username.isEmpty()) {
-                mostrarError("⚠️ El nombre de usuario no puede estar vacío");
+                mostrarError("El nombre de usuario no puede estar vacío");
                 return;
             }
 
             if (password.length() != 5) {
-                mostrarError("⚠️ La contraseña debe tener exactamente 5 caracteres especiales");
+                mostrarError("La contraseña debe tener exactamente 5 caracteres especiales");
                 return;
             }
 
-            // Verificar que todos los caracteres sean especiales
             boolean todosEspeciales = true;
             for (char c : password.toCharArray()) {
                 if (Character.isLetterOrDigit(c)) {
@@ -175,18 +172,16 @@ public class PCrearCuenta extends JFrame {
             }
 
             if (!todosEspeciales) {
-                mostrarError("⚠️ La contraseña debe tener 5 caracteres especiales");
+                mostrarError("️La contraseña debe tener 5 caracteres especiales");
                 return;
             }
 
-            // 🚀 Intentar crear la cuenta
             Cuenta resultado = Cuenta.crearCuenta(username, password);
 
             if (resultado != null) {
                 lblMensaje.setForeground(new Color(0, 255, 100));
-                lblMensaje.setText("✅ Cuenta creada exitosamente");
+                lblMensaje.setText("Cuenta creada exitosamente");
 
-                // Redirigir después de 1 segundo
                 Timer timer = new Timer(1000, ev -> {
                     dispose();
                     new MenuPrincipal().setVisible(true);
@@ -194,7 +189,6 @@ public class PCrearCuenta extends JFrame {
                 timer.setRepeats(false);
                 timer.start();
             } else {
-                // 📢 Determinar el tipo de error
                 boolean existe = false;
                 for (Cuenta c : Cuenta.getTodasCuentas()) {
                     if (c.getUsername().equalsIgnoreCase(username) && c.isActivo()) {
@@ -204,13 +198,13 @@ public class PCrearCuenta extends JFrame {
                 }
 
                 if (existe) {
-                    mostrarError("❌ Ese nombre de usuario ya existe, elige otro");
+                    mostrarError("Ese nombre de usuario ya existe, elige otro");
                 } else {
-                    mostrarError("❌ La contraseña no cumple con las reglas (5 caracteres especiales)");
+                    mostrarError("La contraseña no cumple con las reglas (5 caracteres especiales)");
                 }
             }
         } catch (Exception e) {
-            mostrarError("❌ Error inesperado: " + e.getMessage());
+            mostrarError("Error inesperado: " + e.getMessage());
         }
 
     }

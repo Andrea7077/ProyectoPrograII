@@ -43,7 +43,6 @@ public class Jugador {
         this.activo = false;
     }
 
-    // Getters
     public String getUsername() {
         return username;
     }

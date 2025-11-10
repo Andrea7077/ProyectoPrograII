@@ -24,13 +24,9 @@ interface GestionCuenta {
     ArrayList<Cuenta> obtenerRanking();
 }
 
-/**
- * Cuenta implementa la interfaz directamente SIN usar Collections ni Comparator
- * - Solo ciclos básicos
- */
+
 public class Cuenta implements GestionCuenta {
 
-    // Atributos de la cuenta
     private String username;
     private String password;
     private int puntos;
@@ -39,7 +35,6 @@ public class Cuenta implements GestionCuenta {
     private int partidasJugadas;
     private int partidasGanadas;
 
-    // Almacenamiento estático compartido
     private static ArrayList<Cuenta> todasCuentas = new ArrayList<>();
     private static Cuenta usuarioActual = null;
 
@@ -53,16 +48,13 @@ public class Cuenta implements GestionCuenta {
         this.partidasGanadas = 0;
     }
 
-    // ========== IMPLEMENTACIÓN DE INTERFAZ ==========
     @Override
     public boolean guardarCuenta(Cuenta cuenta) {
            try {
-        // No guardar cuentas vacías
         if (cuenta.username == null || cuenta.username.trim().isEmpty()) {
             return false;
         }
 
-        // Verificar si ya existe una cuenta activa con el mismo nombre
         for (Cuenta c : todasCuentas) {
             if (c.username.equalsIgnoreCase(cuenta.username) && c.activo) {
                 return false;
@@ -81,7 +73,6 @@ public class Cuenta implements GestionCuenta {
     public Cuenta buscarCuenta(String username) {
         try {
             for (Cuenta c : todasCuentas) {
-                // ✅ Solo considerar cuentas activas
                 if (c.username.equalsIgnoreCase(username) && c.activo) {
                     return c;
                 }
@@ -98,7 +89,7 @@ public class Cuenta implements GestionCuenta {
         try {
             Cuenta cuenta = buscarCuenta(username);
             if (cuenta != null) {
-                cuenta.activo = false; // Marcar como inactivo
+                cuenta.activo = false; 
                 return true;
             }
             return false;
@@ -125,14 +116,11 @@ public class Cuenta implements GestionCuenta {
         try {
             ArrayList<Cuenta> ranking = obtenerTodasCuentas();
 
-            // ORDENAMIENTO BURBUJA (Bubble Sort) - Mayor a menor
-            // Lo aprendiste en estructuras básicas
             for (int i = 0; i < ranking.size() - 1; i++) {
                 for (int j = 0; j < ranking.size() - i - 1; j++) {
                     Cuenta actual = ranking.get(j);
                     Cuenta siguiente = ranking.get(j + 1);
 
-                    // Si el actual tiene MENOS puntos que el siguiente, intercambiar
                     if (actual.puntos < siguiente.puntos) {
                         ranking.set(j, siguiente);
                         ranking.set(j + 1, actual);
@@ -147,10 +135,7 @@ public class Cuenta implements GestionCuenta {
         }
     }
 
-    // ========== MÉTODOS DE NEGOCIO ==========
-    /**
-     * Crear nueva cuenta con validaciones
-     */
+   
     public static Cuenta crearCuenta(String username, String password) {
          try {
         if (username == null || username.trim().isEmpty()) {
@@ -160,17 +145,15 @@ public class Cuenta implements GestionCuenta {
             return null;
         }
 
-        // Verificar que todos los caracteres sean especiales
         for (char c : password.toCharArray()) {
             if (Character.isLetterOrDigit(c)) {
                 return null;
             }
         }
 
-        // Revisar que no exista (solo activos)
         for (Cuenta c : todasCuentas) {
             if (c.username.equalsIgnoreCase(username) && c.activo) {
-                return null; // Ya existe
+                return null; 
             }
         }
 
@@ -185,12 +168,8 @@ public class Cuenta implements GestionCuenta {
     }    
     }
 
-    /**
-     * Iniciar sesión
-     */
     public static boolean iniciarSesion(String username, String password) {
         try {
-        // Buscar directamente sin crear cuentas vacías
         Cuenta cuenta = null;
         for (Cuenta c : todasCuentas) {
             if (c.username.equalsIgnoreCase(username) && c.activo) {
@@ -211,29 +190,22 @@ public class Cuenta implements GestionCuenta {
     }
     }
 
-    /**
-     * Cerrar sesión
-     */
+   
     public static void cerrarSesion() {
         usuarioActual = null;
     }
 
-    /**
-     * Cambiar password con validaciones
-     */
+  
     public boolean cambiarPassword(String passwordActual, String nuevaPassword) {
         try {
-            // Verificar password actual
             if (!this.password.equals(passwordActual)) {
                 return false;
             }
 
-            // Validar nueva password: exactamente 5 caracteres
             if (nuevaPassword == null || nuevaPassword.length() != 5) {
                 return false;
             }
 
-            // Verificar que todos los caracteres sean especiales
             for (int i = 0; i < nuevaPassword.length(); i++) {
                 char c = nuevaPassword.charAt(i);
                 if (Character.isLetterOrDigit(c)) {
@@ -249,9 +221,6 @@ public class Cuenta implements GestionCuenta {
         }
     }
 
-    /**
-     * Eliminar cuenta actual
-     */
     public static boolean eliminarCuentaActual(String password) {
         try {
             if (usuarioActual != null && usuarioActual.password.equals(password)) {
@@ -266,9 +235,6 @@ public class Cuenta implements GestionCuenta {
         }
     }
 
-    /**
-     * Registrar resultado de partida
-     */
     public void registrarPartida(boolean gano) {
         try {
             partidasJugadas++;
@@ -281,9 +247,7 @@ public class Cuenta implements GestionCuenta {
         }
     }
 
-    /**
-     * Calcular porcentaje de victorias
-     */
+   
     public double getPorcentajeVictorias() {
         if (partidasJugadas == 0) {
             return 0.0;
@@ -291,7 +255,6 @@ public class Cuenta implements GestionCuenta {
         return (partidasGanadas * 100.0) / partidasJugadas;
     }
 
-    // ========== GETTERS ==========
     public static Cuenta getUsuarioActual() {
         return usuarioActual;
     }

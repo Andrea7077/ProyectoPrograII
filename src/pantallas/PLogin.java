@@ -55,7 +55,7 @@ public class PLogin extends JFrame {
         c.gridwidth = 2;
         panelCentro.add(lblTitulo, c);
 
-        JLabel lblSubtitulo = new JLabel("Iniciar Sesión", SwingConstants.CENTER);
+        JLabel lblSubtitulo = new JLabel("Iniciar Sesion", SwingConstants.CENTER);
         lblSubtitulo.setFont(new Font("Arial", Font.BOLD, 18));
         lblSubtitulo.setForeground(Color.WHITE);
         c.gridy++;
@@ -116,7 +116,6 @@ public class PLogin extends JFrame {
 
         fondoPanel.add(panelCentro, gbc);
 
-        // ✅ EVENTOS MEJORADOS
         btnRegresar.addActionListener(e -> {
             dispose();
             new MenuDeInicio().setVisible(true);
@@ -124,7 +123,6 @@ public class PLogin extends JFrame {
 
         btnLogin.addActionListener(e -> validarLogin());
         
-        // Enter para login rápido
         tcontra.addActionListener(e -> validarLogin());
     }
 
@@ -135,13 +133,13 @@ public class PLogin extends JFrame {
 
             if (username.isEmpty() || password.isEmpty()) {
                 labelmensaje.setForeground(Color.YELLOW);
-                labelmensaje.setText("⚠️ Completa todos los campos");
+                labelmensaje.setText("Completa todos los campos");
                 return;
             }
 
             if (Cuenta.iniciarSesion(username, password)) {
                 labelmensaje.setForeground(Color.GREEN);
-                labelmensaje.setText("✅ Inicio de sesión exitoso");
+                labelmensaje.setText("Inicio de sesión exitoso");
                 
                 Timer timer = new Timer(1000, ev -> {
                     dispose();
@@ -151,12 +149,12 @@ public class PLogin extends JFrame {
                 timer.start();
             } else {
                 labelmensaje.setForeground(Color.RED);
-                labelmensaje.setText("❌ Usuario o contraseña incorrectos");
+                labelmensaje.setText("Usuario o contraseña incorrectos");
                 tcontra.setText("");
             }
         } catch (Exception e) {
             labelmensaje.setForeground(Color.RED);
-            labelmensaje.setText("❌ Error: " + e.getMessage());
+            labelmensaje.setText("rror: " + e.getMessage());
         }
     }
 

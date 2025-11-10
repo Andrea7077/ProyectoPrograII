@@ -15,7 +15,7 @@ private Jugador[] players;
     private int cantidadLogs;
     
     public Guardado() {
-        players = new Jugador[100]; // Capacidad inicial
+        players = new Jugador[100];
         logs = new String[1000];
         cantidadPlayers = 0;
         cantidadLogs = 0;
@@ -48,19 +48,15 @@ private Jugador[] players;
         }
     }
     
-    // FUNCIÓN RECURSIVA 1: Buscar player por username
     private Jugador buscarPlayerRecursivo(String username, int indice) {
-        // Caso base 1: llegamos al final del arreglo
         if (indice >= cantidadPlayers) {
             return null;
         }
         
-        // Caso base 2: encontramos el player
         if (players[indice] != null && players[indice].getUsername().equals(username)) {
             return players[indice];
         }
         
-        // Caso recursivo: seguir buscando
         return buscarPlayerRecursivo(username, indice + 1);
     }
     
@@ -91,7 +87,6 @@ private Jugador[] players;
                     activos[cuenta++] = players[i];
                 }
             }
-            // Retornar array del tamaño exacto
             Jugador[] resultado = new Jugador[cuenta];
             System.arraycopy(activos, 0, resultado, 0, cuenta);
             return resultado;
@@ -138,7 +133,6 @@ private Jugador[] players;
     public Jugador[] obtenerRanking() {
         try {
             Jugador[] activos = obtenerTodosPlayers();
-            // Ordenar usando QuickSort recursivo
             quickSortRecursivo(activos, 0, activos.length - 1);
             return activos;
         } catch (Exception e) {
@@ -147,18 +141,14 @@ private Jugador[] players;
         }
     }
     
-    // FUNCIÓN RECURSIVA 2: QuickSort para ordenar ranking
     private void quickSortRecursivo(Jugador[] arr, int bajo, int alto) {
-        // Caso base: si bajo >= alto, ya está ordenado
         if (bajo >= alto) {
             return;
         }
         
         try {
-            // Particionar el arreglo
             int indicePivote = particion(arr, bajo, alto);
             
-            // Caso recursivo: ordenar las dos mitades
             quickSortRecursivo(arr, bajo, indicePivote - 1);
             quickSortRecursivo(arr, indicePivote + 1, alto);
         } catch (Exception e) {
@@ -171,7 +161,6 @@ private Jugador[] players;
         int i = bajo - 1;
         
         for (int j = bajo; j < alto; j++) {
-            // Ordenar de mayor a menor puntos
             if (arr[j].getPuntos() > pivote) {
                 i++;
                 Jugador temp = arr[i];

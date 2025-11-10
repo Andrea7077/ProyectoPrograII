@@ -10,14 +10,13 @@ package Clases;
  */
 public abstract class Pieza {
 
-    protected String color; // "BLANCO" o "NEGRO"
+    protected String color; 
     protected int vidas;
     protected int escudo;
     protected int potenciaAtaque;
     protected int posX;
     protected int posY;
-    protected String tipo; // "VAMPIRO", "HOMBRE_LOBO", "MUERTE", "ZOMBIE"
-
+    protected String tipo; 
     public Pieza(String color, int vidas, int escudo, int potenciaAtaque, String tipo) {
         this.color = color;
         this.vidas = vidas;
@@ -26,14 +25,12 @@ public abstract class Pieza {
         this.tipo = tipo;
     }
 
-    // Métodos abstractos (polimorfismo)
     public abstract void atacar(Pieza enemigo);
 
     public abstract boolean puedeRealizarAtaqueEspecial(Tablero tablero, int destinoX, int destinoY);
 
     public abstract void ataqueEspecial(Tablero tablero, int destinoX, int destinoY);
 
-    // Método para recibir daño
     public void recibirDanio(int danio, boolean ignorarEscudo) {
         if (ignorarEscudo) {
             vidas -= danio;
@@ -59,14 +56,12 @@ public abstract class Pieza {
         vidas += cantidad;
     }
 
-    // Validar movimiento básico (1 casilla en cualquier dirección)
     public boolean puedeMoverse(int origenX, int origenY, int destinoX, int destinoY) {
         int difX = Math.abs(destinoX - origenX);
         int difY = Math.abs(destinoY - origenY);
         return difX <= 1 && difY <= 1 && !(difX == 0 && difY == 0);
     }
 
-    // Getters y Setters
     public String getColor() {
         return color;
     }

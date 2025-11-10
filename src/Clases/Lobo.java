@@ -21,21 +21,17 @@ public class Lobo extends Pieza {
     
     @Override
     public boolean puedeRealizarAtaqueEspecial(Tablero tablero, int destinoX, int destinoY) {
-        // Movimiento especial: hasta 2 casillas vacías
         int difX = Math.abs(destinoX - this.posX);
         int difY = Math.abs(destinoY - this.posY);
         
-        // Debe ser máximo 2 casillas en una dirección
         if (difX > 2 || difY > 2) return false;
         if (difX == 0 && difY == 0) return false;
         
-        // Verificar que el destino esté vacío
         return tablero.obtenerPieza(destinoX, destinoY) == null;
     }
     
     @Override
     public void ataqueEspecial(Tablero tablero, int destinoX, int destinoY) {
-        // Mover hasta 2 casillas (ya validado)
         tablero.moverPieza(this.posX, this.posY, destinoX, destinoY);
     }
     

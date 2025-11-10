@@ -15,7 +15,6 @@ public final class Zombie extends Pieza {
     
     @Override
     public final void atacar(Pieza enemigo) {
-        // Zombies no atacan por sí solos
         throw new UnsupportedOperationException("Los zombies no atacan por sí solos");
     }
     
@@ -29,7 +28,6 @@ public final class Zombie extends Pieza {
         throw new UnsupportedOperationException("Los zombies no tienen ataques especiales");
     }
     
-    // Zombie no se mueve
     @Override
     public final boolean puedeMoverse(int origenX, int origenY, int destinoX, int destinoY) {
         return false;

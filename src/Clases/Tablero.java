@@ -17,17 +17,17 @@ public class Tablero {
     private Pieza[][] casillas;
     private String jugador1;
     private String jugador2;
-    private String turnoActual; // "BLANCO" o "NEGRO"
+    private String turnoActual;
     private int piezasPerdidasBlanco;
     private int piezasPerdidasNegro;
     private Random random;
-    private static InterfazGuardado storageGlobal = new Guardado(); // ✅ Storage compartido
+    private static InterfazGuardado storageGlobal = new Guardado();
 
     public Tablero(String jugador1, String jugador2) {
         this.jugador1 = jugador1;
         this.jugador2 = jugador2;
         this.casillas = new Pieza[TAMANIO][TAMANIO];
-        this.turnoActual = "BLANCO"; // Blanco inicia
+        this.turnoActual = "BLANCO"; 
         this.piezasPerdidasBlanco = 0;
         this.piezasPerdidasNegro = 0;
         this.random = new Random();
@@ -36,7 +36,6 @@ public class Tablero {
 
     private void inicializarTablero(String jugador1, String jugador2) {
         try {
-            // ✅ INVERTIDO: Jugador 1 (BLANCO) - fila 5 (ABAJO)
             casillas[5][0] = new Lobo("BLANCO");
             casillas[5][1] = new Vampiros("BLANCO");
             casillas[5][2] = new Muerte("BLANCO");
@@ -67,10 +66,6 @@ public class Tablero {
             System.err.println("Error al inicializar tablero: " + e.getMessage());
         }
     }
-
-    // ============================================
-    // MÉTODOS DE ACCESO
-    // ============================================
 
     public Pieza getPieza(int x, int y) {
         try {
@@ -111,15 +106,10 @@ public class Tablero {
     public static int getTamanio() {
         return TAMANIO;
     }
-    
-    // ✅ NUEVO: Getter para storage global
+
     public static InterfazGuardado getStorageGlobal() {
         return storageGlobal;
     }
-
-    // ============================================
-    // SISTEMA DE TURNOS Y RULETA
-    // ============================================
 
     public void cambiarTurno() {
         try {
@@ -179,10 +169,6 @@ public class Tablero {
             return null;
         }
     }
-
-    // ============================================
-    // MOVIMIENTO
-    // ============================================
 
     public boolean moverPieza(int origenX, int origenY, int destinoX, int destinoY) {
         try {
@@ -275,10 +261,6 @@ public class Tablero {
             return false;
         }
     }
-
-    // ============================================
-    // SISTEMA DE COMBATE
-    // ============================================
 
     public String atacarNormal(int origenX, int origenY, int destinoX, int destinoY) {
         try {
@@ -417,10 +399,10 @@ public class Tablero {
 
             defensor.recibirDanio(dano, ignorarEscudo);
 
-            String resultado = tipoAtaque + " | Daño: " + dano +
-                    " | " + defensor.getTipo() +
-                    " | Escudo: " + defensor.getEscudo() + " (antes: " + escudoAntes + ")" +
-                    " | Vidas: " + defensor.getVidas() + " (antes: " + vidasAntes + ")";
+            String resultado = tipoAtaque + " | Daño: " + dano
+                    + " | " + defensor.getTipo()
+                    + " | Escudo: " + defensor.getEscudo() + " (antes: " + escudoAntes + ")"
+                    + " | Vidas: " + defensor.getVidas() + " (antes: " + vidasAntes + ")";
 
             if (!defensor.estaVivo()) {
                 casillas[x][y] = null;
@@ -434,10 +416,6 @@ public class Tablero {
             return "Error al procesar daño: " + e.getMessage();
         }
     }
-
-    // ============================================
-    // VERIFICACIÓN Y FIN DEL JUEGO
-    // ============================================
 
     public String verificarGanador() {
         try {
@@ -459,19 +437,9 @@ public class Tablero {
 
     public void finalizarPartida(String ganador, String tipo) {
         try {
-            // ✅ CORREGIDO: Actualizar puntos en Cuenta, NO en Jugador
-            Cuenta cuentaGanadora = Cuenta.getUsuarioActual().buscarCuenta(ganador);
-            if (cuentaGanadora != null) {
-                cuentaGanadora.registrarPartida(true);
-            }
-            
-            String perdedor = ganador.equals(jugador1) ? jugador2 : jugador1;
-            Cuenta cuentaPerdedora = Cuenta.getUsuarioActual().buscarCuenta(perdedor);
-            if (cuentaPerdedora != null) {
-                cuentaPerdedora.registrarPartida(false);
-            }
 
-            // ✅ CORREGIDO: Guardar en el storage global
+            String perdedor = ganador.equals(jugador1) ? jugador2 : jugador1;
+
             String mensaje;
             if (tipo.equals("RETIRO")) {
                 mensaje = perdedor + " SE HA RETIRADO, FELICIDADES " + ganador + ", HAS GANADO 3 PUNTOS";
@@ -485,15 +453,13 @@ public class Tablero {
         }
     }
 
-    // ============================================
-    // MÉTODOS AUXILIARES
-    // ============================================
-
     public boolean hayZombieAdyacente(int x, int y, String color) {
         try {
             for (int i = -1; i <= 1; i++) {
                 for (int j = -1; j <= 1; j++) {
-                    if (i == 0 && j == 0) continue;
+                    if (i == 0 && j == 0) {
+                        continue;
+                    }
                     int nx = x + i;
                     int ny = y + j;
                     Pieza p = getPieza(nx, ny);

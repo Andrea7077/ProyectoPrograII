@@ -39,7 +39,6 @@ public class MenuPrincipal extends JFrame {
         gbc.insets = new Insets(15, 20, 15, 20);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Título
         JLabel lblTitulo = new JLabel("VAMPIRE WARGAME", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Serif", Font.BOLD, 48));
         lblTitulo.setForeground(new Color(255, 50, 50));
@@ -47,7 +46,6 @@ public class MenuPrincipal extends JFrame {
         gbc.gridy = 0;
         panelCentro.add(lblTitulo, gbc);
 
-        // Mensaje de bienvenida
         Cuenta usuario = Cuenta.getUsuarioActual();
         if (usuario != null) {
             JLabel lblBienvenida = new JLabel("Bienvenido, " + usuario.getUsername() + " :)", SwingConstants.CENTER);
@@ -60,32 +58,25 @@ public class MenuPrincipal extends JFrame {
         Dimension btnSize = new Dimension(250, 50);
         Font btnFont = new Font("Segoe UI", Font.BOLD, 18);
 
-        // Botón Jugar
         btnJugar = crearBoton("Jugar", new Color(139, 0, 0), btnSize, btnFont);
         gbc.gridy++;
         panelCentro.add(btnJugar, gbc);
 
-        // Botón Mi Perfil
-        btnPerfil = crearBoton("Mi Perfil", new Color(178, 34, 34), btnSize, btnFont);
+       btnPerfil = crearBoton("Mi Perfil", new Color(178, 34, 34), btnSize, btnFont);
         gbc.gridy++;
         panelCentro.add(btnPerfil, gbc);
 
-        // Botón Reportes
         btnReportes = crearBoton("Reportes", new Color(100, 30, 30), btnSize, btnFont);
         gbc.gridy++;
         panelCentro.add(btnReportes, gbc);
 
-        // Botón Cerrar Sesión
         btnSalir = crearBoton("Cerrar Sesión", new Color(90, 0, 0), btnSize, btnFont);
         gbc.gridy++;
         panelCentro.add(btnSalir, gbc);
 
         fondo.add(panelCentro, gbcMain);
 
-        // ═══════════════════════════════════════
-        // ACCIONES DE LOS BOTONES
-        // ═══════════════════════════════════════
-
+      
         btnJugar.addActionListener(e -> {
             dispose();
             new PTablero().setVisible(true);
@@ -125,7 +116,6 @@ public class MenuPrincipal extends JFrame {
         btn.setBorderPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
-        // Efecto hover
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             Color originalColor = bgColor;
             

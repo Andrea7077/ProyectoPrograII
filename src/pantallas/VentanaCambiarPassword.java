@@ -47,7 +47,6 @@ public class VentanaCambiarPassword extends JDialog {
         gbc.gridy++;
         fondo.add(crearCampo("Confirmar nueva:", "confirmar"), gbc);
 
-        // Botones
         gbc.gridy++;
         gbc.gridwidth = 2;
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
@@ -62,7 +61,6 @@ public class VentanaCambiarPassword extends JDialog {
         panelBotones.add(btnCancelar);
         fondo.add(panelBotones, gbc);
 
-        // Acciones
         JPasswordField txtActual = (JPasswordField) campos.get("actual");
         JPasswordField txtNueva = (JPasswordField) campos.get("nueva");
         JPasswordField txtConfirmar = (JPasswordField) campos.get("confirmar");

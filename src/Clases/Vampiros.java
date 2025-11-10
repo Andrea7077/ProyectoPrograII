@@ -21,7 +21,6 @@ public class Vampiros extends Pieza {
 
     @Override
     public boolean puedeRealizarAtaqueEspecial(Tablero tablero, int destinoX, int destinoY) {
-        // Chupar sangre: debe ser adyacente y enemigo
         Pieza objetivo = tablero.obtenerPieza(destinoX, destinoY);
         if (objetivo == null || objetivo.getColor().equals(this.color)) {
             return false;
@@ -31,7 +30,6 @@ public class Vampiros extends Pieza {
 
     @Override
     public void ataqueEspecial(Tablero tablero, int destinoX, int destinoY) {
-        // Chupar sangre: quita 1 vida y restaura 1 vida propia
         Pieza enemigo = tablero.obtenerPieza(destinoX, destinoY);
         if (enemigo != null) {
             enemigo.recibirDanio(1, false);

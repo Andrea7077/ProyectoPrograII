@@ -40,14 +40,14 @@ public class MenuDeInicio extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         JLabel lblTitulo = new JLabel("VAMPIRE WARGAME", SwingConstants.CENTER);
-        lblTitulo.setFont(new Font("Serif", Font.BOLD, 48)); // Tamaño de fuente aumentado
-        lblTitulo.setForeground(new Color(255, 50, 50)); // Rojo brillante
+        lblTitulo.setFont(new Font("Serif", Font.BOLD, 48)); 
+        lblTitulo.setForeground(new Color(255, 50, 50)); 
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 1;
         panelCentro.add(lblTitulo, gbc);
 
-        Dimension btnSize = new Dimension(250, 50); // Tamaño consistente y más grande
+        Dimension btnSize = new Dimension(250, 50); 
         Font btnFont = new Font("Segoe UI", Font.BOLD, 18);
 
         JButton btnLogin = crearBoton("Log In", new Color(139, 0, 0), btnSize, btnFont);
@@ -86,9 +86,7 @@ public class MenuDeInicio extends JFrame {
         });
     }
 
-    /**
-     * Helper method para crear botones con estilo consistente.
-     */
+    
     private JButton crearBoton(String texto, Color bgColor, Dimension size, Font font) {
         JButton btn = new JButton(texto);
         btn.setPreferredSize(size);
@@ -100,9 +98,7 @@ public class MenuDeInicio extends JFrame {
         return btn;
     }
 
-    /**
-     * Panel personalizado para dibujar una imagen como fondo.
-     */
+  
     static class FondoPanel extends JPanel {
 
         private Image imagen;

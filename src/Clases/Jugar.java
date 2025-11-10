@@ -13,7 +13,7 @@ public class Jugar {
     private Tablero tablero;
     private Jugador jugador1;
     private Jugador jugador2;
-    private String turnoActual; // "BLANCO" o "NEGRO"
+    private String turnoActual; 
     private String[] tiposPiezas = {"VAMPIRO", "HOMBRE_LOBO", "MUERTE"};
     private InterfazGuardado storage;
 
@@ -23,11 +23,9 @@ public class Jugar {
             this.jugador2 = j2;
             this.storage = storage;
 
-            // ✅ ARREGLADO: Ahora usa el constructor correcto
             this.tablero = new Tablero(j1.getUsername(), j2.getUsername());
             this.turnoActual = "BLANCO"; // Blancas inician
 
-            // Ya no necesitas llamar inicializarTablero porque el constructor ya lo hace
         } catch (Exception e) {
             System.err.println("Error al crear Jugar: " + e.getMessage());
         }
@@ -45,7 +43,6 @@ public class Jugar {
 
     public int contarPiezasPerdidas(String color) {
         try {
-            // 6 piezas iniciales - piezas actuales (sin contar zombies)
             int piezasActuales = 0;
             for (int i = 0; i < Tablero.getTamanio(); i++) {
                 for (int j = 0; j < Tablero.getTamanio(); j++) {
@@ -87,9 +84,7 @@ public class Jugar {
         }
     }
 
-    // FUNCIÓN RECURSIVA 3: Contar piezas de un tipo específico
     private int contarPiezasTipoRecursivo(String tipo, String color, int fila, int col) {
-        // Caso base: llegamos al final del tablero
         if (fila >= Tablero.getTamanio()) {
             return 0;
         }
@@ -110,7 +105,6 @@ public class Jugar {
                 cuenta = 1;
             }
 
-            // Caso recursivo: sumar con el resto del tablero
             return cuenta + contarPiezasTipoRecursivo(tipo, color, siguiente_fila, siguiente_col);
         } catch (Exception e) {
             System.err.println("Error en recursión de contar piezas: " + e.getMessage());
