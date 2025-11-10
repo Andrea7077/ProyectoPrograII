@@ -58,7 +58,7 @@ public class PMiPerfil extends JFrame {
 
         JLabel lblTitulo = new JLabel("👤 MI PERFIL", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Serif", Font.BOLD, 38));
-        lblTitulo.setForeground(new Color(255, 70, 70));
+        lblTitulo.setForeground(new Color(255, 255, 255));
         c.gridx = 0;
         c.gridy = 0;
         c.gridwidth = 2;
