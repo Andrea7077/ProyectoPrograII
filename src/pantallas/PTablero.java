@@ -22,8 +22,6 @@ public class PTablero extends JFrame {
     private JButton btnGirarRuleta, btnRetirarse;
     private JTextArea areaLog;
     
-    private HashMap<String, ImageIcon> cacheImagenes = new HashMap<>();
-    
     private String piezaPermitida = null;
     private int filaSeleccionada = -1;
     private int colSeleccionada = -1;
@@ -38,12 +36,10 @@ public class PTablero extends JFrame {
         String jugador2 = seleccionarOponente();
         
         if (jugador2 == null) {
-            // Si no hay oponentes, crear "Jugador2" automático
             jugador2 = "Jugador2";
         }
         
         tableroLogico = new Tablero(jugador1, jugador2);
-        precargarImagenes();
         inicializarComponentes();
         
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -64,7 +60,7 @@ public class PTablero extends JFrame {
         }
         
         if (oponentes.isEmpty()) {
-            return null; // Retornar null para usar "Jugador2"
+            return null;
         }
         
         String[] opciones = oponentes.toArray(new String[0]);
@@ -78,30 +74,7 @@ public class PTablero extends JFrame {
             opciones[0]
         );
         
-        return seleccionado != null ? seleccionado : null;
-    }
-
-    private void precargarImagenes() {
-        String[] tipos = {"vampiro", "lobo", "muerte", "zombie"};
-        String[] colores = {"blanco", "negro"};
-        
-        for (String tipo : tipos) {
-            for (String color : colores) {
-                String key = tipo + "_" + color;
-                String ruta = "/imagenes/" + key + ".png";
-                
-                try {
-                    java.net.URL imgURL = getClass().getResource(ruta);
-                    if (imgURL != null) {
-                        ImageIcon icono = new ImageIcon(imgURL);
-                        Image img = icono.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
-                        cacheImagenes.put(key, new ImageIcon(img));
-                    }
-                } catch (Exception e) {
-                    System.out.println("⚠️ No se encontró: " + ruta);
-                }
-            }
-        }
+        return seleccionado;
     }
 
     private void inicializarComponentes() {
@@ -161,7 +134,9 @@ public class PTablero extends JFrame {
         lblRuleta.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         ruletaPanel = new RuletaPanel();
-        ruletaPanel.setMaximumSize(new Dimension(270, 180));
+        ruletaPanel.setPreferredSize(new Dimension(240, 240));
+        ruletaPanel.setMaximumSize(new Dimension(240, 240));
+        ruletaPanel.setMinimumSize(new Dimension(240, 240));
         ruletaPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         btnGirarRuleta = new JButton("⚡ GIRAR RULETA");
@@ -219,24 +194,21 @@ public class PTablero extends JFrame {
     }
 
     // ========================================
-    // RULETA SIMPLIFICADA (2x3)
+    // RULETA CIRCULAR QUE SÍ GIRA
     // ========================================
     private class RuletaPanel extends JPanel {
-        private String[] piezas = {"LOBO", "MUERTE", "VAMPIRO", "LOBO", "MUERTE", "VAMPIRO"};
+        private String[] piezas = {"LOBO", "VAMPIRO", "MUERTE", "LOBO", "VAMPIRO", "MUERTE", "LOBO", "VAMPIRO"};
         private Color[] colores = {
-            new Color(150, 75, 0),    // Lobo
-            new Color(100, 0, 150),   // Muerte
-            new Color(180, 0, 0),     // Vampiro
-            new Color(150, 75, 0),
-            new Color(100, 0, 150),
-            new Color(180, 0, 0)
+            new Color(150, 75, 0), new Color(180, 0, 0), new Color(100, 0, 150),
+            new Color(150, 75, 0), new Color(180, 0, 0), new Color(100, 0, 150),
+            new Color(150, 75, 0), new Color(180, 0, 0)
         };
-        private int indiceSeleccionado = 0;
+        private double anguloRotacion = 0;
         private boolean girando = false;
         private Random random = new Random();
+        private int indiceSeleccionado = 0;
 
         public RuletaPanel() {
-            setPreferredSize(new Dimension(270, 180));
             setOpaque(false);
         }
 
@@ -244,18 +216,32 @@ public class PTablero extends JFrame {
             if (girando) return;
             
             girando = true;
-            final int[] pasos = {0};
-            final int totalPasos = 20 + random.nextInt(15);
+            final double[] velocidad = {30.0};
+            final int[] frames = {0};
+            final int duracionGiro = 80; // frames
             
-            Timer timer = new Timer(80, null);
+            Timer timer = new Timer(16, null);
             timer.addActionListener(e -> {
-                indiceSeleccionado = (indiceSeleccionado + 1) % piezas.length;
-                repaint();
-                pasos[0]++;
+                anguloRotacion += velocidad[0];
+                if (anguloRotacion >= 360) {
+                    anguloRotacion -= 360;
+                }
                 
-                if (pasos[0] >= totalPasos) {
+                velocidad[0] *= 0.97; // Desaceleración
+                frames[0]++;
+                
+                repaint();
+                
+                if (frames[0] >= duracionGiro && velocidad[0] < 1.0) {
                     timer.stop();
                     girando = false;
+                    
+                    // Calcular pieza seleccionada
+                    double anguloSegmento = 360.0 / piezas.length;
+                    double anguloIndicador = (360 - anguloRotacion + 90) % 360;
+                    indiceSeleccionado = (int)(anguloIndicador / anguloSegmento);
+                    
+                    repaint();
                     onComplete.run();
                 }
             });
@@ -268,53 +254,71 @@ public class PTablero extends JFrame {
             Graphics2D g2 = (Graphics2D) g;
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            int cellWidth = 80;
-            int cellHeight = 70;
-            int startX = (getWidth() - (cellWidth * 3)) / 2;
-            int startY = (getHeight() - (cellHeight * 2)) / 2;
+            int centerX = getWidth() / 2;
+            int centerY = getHeight() / 2;
+            int radio = 100;
+            
+            // Guardar transformación original
+            java.awt.geom.AffineTransform transformOriginal = g2.getTransform();
+            
+            // Aplicar rotación
+            g2.rotate(Math.toRadians(anguloRotacion), centerX, centerY);
 
-            // Dibujar cuadrícula 2x3
-            for (int i = 0; i < 6; i++) {
-                int row = i / 3;
-                int col = i % 3;
-                int x = startX + (col * cellWidth);
-                int y = startY + (row * cellHeight);
-
-                // Color de fondo
+            // Dibujar segmentos
+            int numSegmentos = piezas.length;
+            double anguloSegmento = 360.0 / numSegmentos;
+            
+            for (int i = 0; i < numSegmentos; i++) {
+                double anguloInicio = i * anguloSegmento;
+                
                 g2.setColor(colores[i]);
-                g2.fillRoundRect(x, y, cellWidth - 5, cellHeight - 5, 15, 15);
-
-                // Borde dorado si está seleccionado
-                if (i == indiceSeleccionado) {
-                    g2.setColor(new Color(255, 215, 0));
-                    g2.setStroke(new BasicStroke(4));
-                    g2.drawRoundRect(x, y, cellWidth - 5, cellHeight - 5, 15, 15);
-                } else {
-                    g2.setColor(new Color(0, 0, 0, 150));
-                    g2.setStroke(new BasicStroke(2));
-                    g2.drawRoundRect(x, y, cellWidth - 5, cellHeight - 5, 15, 15);
-                }
-
-                // Texto simplificado
-                g2.setFont(new Font("Arial", Font.BOLD, 14));
+                g2.fillArc(centerX - radio, centerY - radio, radio * 2, radio * 2, 
+                          (int)anguloInicio, (int)anguloSegmento);
+                
+                g2.setColor(new Color(0, 0, 0, 100));
+                g2.setStroke(new BasicStroke(2));
+                g2.drawArc(centerX - radio, centerY - radio, radio * 2, radio * 2, 
+                          (int)anguloInicio, (int)anguloSegmento);
+                
+                // Texto
+                double anguloMedio = Math.toRadians(anguloInicio + anguloSegmento / 2);
+                int textX = centerX + (int)(Math.cos(anguloMedio) * radio * 0.65);
+                int textY = centerY + (int)(Math.sin(anguloMedio) * radio * 0.65);
+                
+                g2.setFont(new Font("Arial", Font.BOLD, 11));
                 String texto = piezas[i];
                 FontMetrics fm = g2.getFontMetrics();
-                int textX = x + (cellWidth - fm.stringWidth(texto)) / 2;
-                int textY = y + ((cellHeight - fm.getHeight()) / 2) + fm.getAscent();
                 
-                // Sombra
                 g2.setColor(new Color(0, 0, 0, 180));
-                g2.drawString(texto, textX + 2, textY + 2);
+                g2.drawString(texto, textX - fm.stringWidth(texto)/2 + 1, textY + 1);
                 
-                // Texto principal
                 g2.setColor(Color.WHITE);
-                g2.drawString(texto, textX, textY);
+                g2.drawString(texto, textX - fm.stringWidth(texto)/2, textY);
             }
-
-            // Marco exterior
+            
+            // Restaurar transformación
+            g2.setTransform(transformOriginal);
+            
+            // Círculo exterior dorado
             g2.setColor(new Color(255, 215, 0));
-            g2.setStroke(new BasicStroke(5));
-            g2.drawRoundRect(startX - 5, startY - 5, (cellWidth * 3) + 5, (cellHeight * 2) + 5, 20, 20);
+            g2.setStroke(new BasicStroke(6));
+            g2.drawOval(centerX - radio - 5, centerY - radio - 5, (radio + 5) * 2, (radio + 5) * 2);
+            
+            // Indicador (triángulo en la parte superior)
+            int[] xPoints = {centerX, centerX - 15, centerX + 15};
+            int[] yPoints = {centerY - radio - 20, centerY - radio - 5, centerY - radio - 5};
+            g2.setColor(new Color(255, 215, 0));
+            g2.fillPolygon(xPoints, yPoints, 3);
+            g2.setColor(Color.BLACK);
+            g2.setStroke(new BasicStroke(2));
+            g2.drawPolygon(xPoints, yPoints, 3);
+            
+            // Círculo central
+            g2.setColor(new Color(50, 50, 50));
+            g2.fillOval(centerX - 25, centerY - 25, 50, 50);
+            g2.setColor(new Color(255, 215, 0));
+            g2.setStroke(new BasicStroke(3));
+            g2.drawOval(centerX - 25, centerY - 25, 50, 50);
         }
 
         public String getPiezaSeleccionada() {
@@ -351,7 +355,7 @@ public class PTablero extends JFrame {
                     } else {
                         lblMensaje.setText("❌ Sin piezas - Pierdes turno");
                         agregarLog("❌ Turno perdido por falta de piezas");
-                        Timer timer = new Timer(2000, e -> {
+                        Timer timer = new Timer(2000, ev -> {
                             btnGirarRuleta.setEnabled(true);
                             cambiarTurno();
                         });
@@ -396,8 +400,6 @@ public class PTablero extends JFrame {
                 : tableroLogico.getJugador2();
             
             tableroLogico.finalizarPartida(ganador, "RETIRO");
-            
-            // Registrar para AMBOS jugadores
             registrarPartidaParaAmbos(ganador, perdedor, true);
             
             JOptionPane.showMessageDialog(this,
@@ -438,7 +440,7 @@ public class PTablero extends JFrame {
                 filaSeleccionada = fila;
                 colSeleccionada = col;
                 esperandoDestino = true;
-                lblMensaje.setText("✅ Selecciona destino (🟢=mover, 🔴=atacar)");
+                lblMensaje.setText("✅ Selecciona destino");
                 tableroGUI.repaint();
             } else {
                 realizarAccion(fila, col);
@@ -492,7 +494,7 @@ public class PTablero extends JFrame {
                     lblMensaje.setText("❌ Movimiento inválido");
                 }
             } else if (!destino.getColor().equals(tableroLogico.getTurnoActual())) {
-                String[] opciones = obtenerOpcionesAtaque(origen);
+                String[] opciones = obtenerOpcionesAtaque(origen, filaDestino, colDestino);
                 
                 int opcion = JOptionPane.showOptionDialog(this,
                         "Selecciona el tipo de ataque:", "⚔️ Atacar",
@@ -511,26 +513,54 @@ public class PTablero extends JFrame {
         }
     }
 
-    private String[] obtenerOpcionesAtaque(Pieza atacante) {
+    private String[] obtenerOpcionesAtaque(Pieza atacante, int destinoF, int destinoC) {
+        java.util.ArrayList<String> opciones = new java.util.ArrayList<>();
+        opciones.add("⚔️ Ataque Normal");
+        
         if (atacante instanceof Vampiros) {
-            return new String[]{"⚔️ Ataque Normal", "🩸 Chupar Sangre"};
+            int deltaF = Math.abs(destinoF - filaSeleccionada);
+            int deltaC = Math.abs(destinoC - colSeleccionada);
+            if (deltaF <= 1 && deltaC <= 1) {
+                opciones.add("🩸 Chupar Sangre");
+            }
         } else if (atacante instanceof Muerte) {
-            return new String[]{"⚔️ Ataque Normal", "🗡️ Lanzar Lanza", "🧟 Ataque Zombie"};
+            int deltaF = Math.abs(destinoF - filaSeleccionada);
+            int deltaC = Math.abs(destinoC - colSeleccionada);
+            
+            if ((deltaF == 2 && deltaC == 0) || (deltaF == 0 && deltaC == 2) || (deltaF == 2 && deltaC == 2)) {
+                if (verificarCaminoLibre(filaSeleccionada, colSeleccionada, destinoF, destinoC)) {
+                    opciones.add("🗡️ Lanzar Lanza");
+                }
+            }
+            
+            if (tableroLogico.hayZombieAdyacente(destinoF, destinoC, atacante.getColor())) {
+                opciones.add("🧟 Ataque Zombie");
+            }
         }
-        return new String[]{"⚔️ Ataque Normal"};
+        
+        return opciones.toArray(new String[0]);
     }
 
     private String ejecutarAtaque(int opcion, Pieza atacante, int filaDestino, int colDestino) {
-        if (atacante instanceof Vampiros && opcion == 1) {
+        String[] opciones = obtenerOpcionesAtaque(atacante, filaDestino, colDestino);
+        
+        if (opcion < 0 || opcion >= opciones.length) {
+            return "Ataque cancelado";
+        }
+        
+        String opcionSeleccionada = opciones[opcion];
+        
+        if (opcionSeleccionada.contains("Chupar Sangre")) {
             return tableroLogico.vampiroChuparSangre(
                     filaSeleccionada, colSeleccionada, filaDestino, colDestino);
-        } else if (atacante instanceof Muerte && opcion == 1) {
+        } else if (opcionSeleccionada.contains("Lanzar Lanza")) {
             return tableroLogico.muerteLanzarLanza(
                     filaSeleccionada, colSeleccionada, filaDestino, colDestino);
-        } else if (atacante instanceof Muerte && opcion == 2) {
+        } else if (opcionSeleccionada.contains("Ataque Zombie")) {
             return tableroLogico.ataqueZombie(
                     filaSeleccionada, colSeleccionada, filaDestino, colDestino);
         }
+        
         return tableroLogico.atacarNormal(
                 filaSeleccionada, colSeleccionada, filaDestino, colDestino);
     }
@@ -543,8 +573,6 @@ public class PTablero extends JFrame {
                 : tableroLogico.getJugador1();
             
             tableroLogico.finalizarPartida(ganador, "VICTORIA");
-            
-            // Registrar para AMBOS jugadores
             registrarPartidaParaAmbos(ganador, perdedor, false);
             
             JOptionPane.showMessageDialog(this,
@@ -565,15 +593,16 @@ public class PTablero extends JFrame {
     }
 
     private void registrarPartidaParaAmbos(String ganador, String perdedor, boolean retiro) {
-        Cuenta cuentaGanadora = Cuenta.getUsuarioActual().buscarCuenta(ganador);
-        Cuenta cuentaPerdedora = Cuenta.getUsuarioActual().buscarCuenta(perdedor);
+        Cuenta usuario = Cuenta.getUsuarioActual();
+        Cuenta cuentaGanadora = usuario.buscarCuenta(ganador);
+        Cuenta cuentaPerdedora = usuario.buscarCuenta(perdedor);
         
         if (cuentaGanadora != null) {
-            cuentaGanadora.registrarPartida(true); // Ganó
+            cuentaGanadora.registrarPartida(true);
         }
         
         if (cuentaPerdedora != null) {
-            cuentaPerdedora.registrarPartida(false); // Perdió
+            cuentaPerdedora.registrarPartida(false);
         }
     }
 
@@ -603,6 +632,24 @@ public class PTablero extends JFrame {
             }
         }
         return cuenta;
+    }
+
+    private boolean verificarCaminoLibre(int origenF, int origenC, int destinoF, int destinoC) {
+        int pasoF = Integer.compare(destinoF, origenF);
+        int pasoC = Integer.compare(destinoC, origenC);
+        
+        int f = origenF + pasoF;
+        int c = origenC + pasoC;
+        
+        while (f != destinoF || c != destinoC) {
+            if (tableroLogico.getPieza(f, c) != null) {
+                return false;
+            }
+            f += pasoF;
+            c += pasoC;
+        }
+        
+        return true;
     }
 
     private void actualizarInterfaz() {
@@ -636,7 +683,7 @@ public class PTablero extends JFrame {
     }
 
     // ========================================
-    // TABLERO MEJORADO
+    // TABLERO CON IMÁGENES
     // ========================================
     private class TableroPanel extends JPanel {
         private CasillaButton[][] casillas;
@@ -678,11 +725,12 @@ public class PTablero extends JFrame {
     }
 
     // ========================================
-    // CASILLA MEJORADA
+    // CASILLA CON IMÁGENES Y OVERLAY DE COLORES
     // ========================================
     private class CasillaButton extends JButton {
         private int fila, col;
         private Color colorBase;
+        private ImageIcon imagenActual = null;
 
         public CasillaButton(int fila, int col) {
             this.fila = fila;
@@ -693,68 +741,157 @@ public class PTablero extends JFrame {
             
             setPreferredSize(new Dimension(95, 95));
             setBackground(colorBase);
-            setFont(new Font("Arial", Font.BOLD, 12));
+            setFont(new Font("Arial", Font.BOLD, 10));
             setFocusPainted(false);
             setBorderPainted(true);
             setCursor(new Cursor(Cursor.HAND_CURSOR));
-            setHorizontalTextPosition(SwingConstants.CENTER);
-            setVerticalTextPosition(SwingConstants.BOTTOM);
+            setContentAreaFilled(false);
+            setOpaque(true);
             
             addActionListener(e -> manejarClick(fila, col));
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            // Dibujar fondo base
+            g2.setColor(colorBase);
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            
+            // Aplicar overlay de color si está seleccionada o es destino válido
+            Color overlay = obtenerColorOverlay();
+            if (overlay != null) {
+                g2.setColor(overlay);
+                g2.fillRect(0, 0, getWidth(), getHeight());
+            }
+            
+            // Dibujar imagen de la pieza si existe
+            if (imagenActual != null) {
+                int x = (getWidth() - imagenActual.getIconWidth()) / 2;
+                int y = (getHeight() - imagenActual.getIconHeight()) / 2;
+                imagenActual.paintIcon(this, g2, x, y);
+            }
+            
+            // Dibujar estadísticas si hay pieza
+            Pieza pieza = tableroLogico.getPieza(fila, col);
+            if (pieza != null) {
+                g2.setFont(new Font("Arial", Font.BOLD, 10));
+                String stats = "V:" + pieza.getVidas() + " E:" + pieza.getEscudo();
+                FontMetrics fm = g2.getFontMetrics();
+                int textWidth = fm.stringWidth(stats);
+                
+                // Fondo semitransparente para el texto
+                g2.setColor(new Color(0, 0, 0, 150));
+                g2.fillRect((getWidth() - textWidth) / 2 - 3, getHeight() - 18, textWidth + 6, 16);
+                
+                // Texto
+                Color colorTexto = pieza.getColor().equals("BLANCO") ? 
+                    new Color(100, 150, 255) : new Color(255, 100, 100);
+                g2.setColor(colorTexto);
+                g2.drawString(stats, (getWidth() - textWidth) / 2, getHeight() - 5);
+            }
+            
+            // Dibujar borde
+            Color bordeColor = obtenerColorBorde();
+            int bordeTamaño = obtenerTamañoBorde();
+            g2.setColor(bordeColor);
+            g2.setStroke(new BasicStroke(bordeTamaño));
+            g2.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+        }
+
+        private Color obtenerColorOverlay() {
+            // Casilla seleccionada (dorada)
+            if (fila == filaSeleccionada && col == colSeleccionada) {
+                return new Color(255, 215, 0, 120);
+            }
+            
+            // Casillas de destino
+            if (esperandoDestino && filaSeleccionada != -1) {
+                Pieza seleccionada = tableroLogico.getPieza(filaSeleccionada, colSeleccionada);
+                Pieza actual = tableroLogico.getPieza(fila, col);
+                
+                // MUERTE: Puede conjurar zombie en CUALQUIER casilla vacía
+                if (seleccionada instanceof Muerte && actual == null) {
+                    return new Color(138, 43, 226, 100); // Morado para zombies
+                }
+                // Movimiento normal (verde)
+                else if (actual == null && esMovimientoValido(seleccionada, fila, col)) {
+                    return new Color(0, 255, 100, 100);
+                } 
+                // Ataque (rojo)
+                else if (actual != null && !actual.getColor().equals(tableroLogico.getTurnoActual()) &&
+                           esAtaqueValido(seleccionada, fila, col)) {
+                    return new Color(255, 50, 50, 100);
+                }
+            }
+            
+            return null;
+        }
+
+        private Color obtenerColorBorde() {
+            if (fila == filaSeleccionada && col == colSeleccionada) {
+                return new Color(255, 215, 0);
+            }
+            return new Color(80, 40, 10);
+        }
+
+        private int obtenerTamañoBorde() {
+            if (fila == filaSeleccionada && col == colSeleccionada) {
+                return 5;
+            }
+            
+            if (esperandoDestino && filaSeleccionada != -1) {
+                Pieza seleccionada = tableroLogico.getPieza(filaSeleccionada, colSeleccionada);
+                Pieza actual = tableroLogico.getPieza(fila, col);
+                
+                if ((seleccionada instanceof Muerte && actual == null) ||
+                    (actual == null && esMovimientoValido(seleccionada, fila, col)) ||
+                    (actual != null && !actual.getColor().equals(tableroLogico.getTurnoActual()) &&
+                     esAtaqueValido(seleccionada, fila, col))) {
+                    return 4;
+                }
+            }
+            
+            return 2;
         }
 
         public void actualizar() {
             Pieza pieza = tableroLogico.getPieza(fila, col);
             
-            Color colorActual = colorBase;
-            java.awt.Color bordeColor = new Color(80, 40, 10);
-            int bordeTamaño = 2;
-            
-            if (fila == filaSeleccionada && col == colSeleccionada) {
-                colorActual = new Color(255, 215, 0, 200);
-                bordeColor = new Color(255, 215, 0);
-                bordeTamaño = 5;
-            } 
-            else if (esperandoDestino && filaSeleccionada != -1) {
-                Pieza seleccionada = tableroLogico.getPieza(filaSeleccionada, colSeleccionada);
-                
-                if (pieza == null && esMovimientoValido(seleccionada, fila, col)) {
-                    colorActual = new Color(0, 255, 100, 140);
-                    bordeColor = new Color(0, 200, 0);
-                    bordeTamaño = 4;
-                } 
-                else if (pieza != null && !pieza.getColor().equals(tableroLogico.getTurnoActual()) &&
-                           esAtaqueValido(seleccionada, fila, col)) {
-                    colorActual = new Color(255, 50, 50, 140);
-                    bordeColor = new Color(200, 0, 0);
-                    bordeTamaño = 4;
-                }
-            }
-            
-            setBackground(colorActual);
-            setBorder(BorderFactory.createLineBorder(bordeColor, bordeTamaño));
-            
+            // Cargar imagen correspondiente
             if (pieza != null) {
-                String key = pieza.getTipo().toLowerCase() + "_" + pieza.getColor().toLowerCase();
-                ImageIcon icono = cacheImagenes.get(key);
-                
-                if (icono != null) {
-                    setIcon(icono);
-                    setText("");
-                } else {
-                    setIcon(null);
-                    String emoji = getEmojiPieza(pieza);
-                    setText("<html><center><font size='8'>" + emoji + "</font><br><font size='2' color='" + 
-                            (pieza.getColor().equals("BLANCO") ? "blue" : "red") + "'>V:" + pieza.getVidas() + 
-                            " E:" + pieza.getEscudo() + "</font></center></html>");
+                String nombreArchivo = obtenerNombreImagen(pieza);
+                try {
+                    java.net.URL imgURL = getClass().getResource("/imagenes/" + nombreArchivo);
+                    if (imgURL != null) {
+                        ImageIcon iconoOriginal = new ImageIcon(imgURL);
+                        Image imgEscalada = iconoOriginal.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
+                        imagenActual = new ImageIcon(imgEscalada);
+                    } else {
+                        imagenActual = null;
+                    }
+                } catch (Exception e) {
+                    imagenActual = null;
                 }
-                
-                setForeground(pieza.getColor().equals("BLANCO") ? 
-                    new Color(50, 50, 200) : new Color(200, 50, 50));
             } else {
-                setIcon(null);
-                setText("");
+                imagenActual = null;
             }
+            
+            repaint();
+        }
+
+        private String obtenerNombreImagen(Pieza pieza) {
+            String tipo = pieza.getTipo().toLowerCase();
+            String color = pieza.getColor().toLowerCase();
+            
+            // Mapear nombres de tipos
+            if (tipo.equals("lobo")) {
+                tipo = "lobo";
+            }
+            
+            return tipo + "_" + color + ".png";
         }
 
         private boolean esMovimientoValido(Pieza pieza, int destinoF, int destinoC) {
@@ -792,7 +929,7 @@ public class PTablero extends JFrame {
                 if ((deltaF == 2 && deltaC == 0) || 
                     (deltaF == 0 && deltaC == 2) || 
                     (deltaF == 2 && deltaC == 2)) {
-                    return true;
+                    return verificarCaminoLibre(filaSeleccionada, colSeleccionada, destinoF, destinoC);
                 }
                 
                 if (tableroLogico.hayZombieAdyacente(destinoF, destinoC, pieza.getColor())) {
@@ -801,34 +938,6 @@ public class PTablero extends JFrame {
             }
             
             return false;
-        }
-
-        private boolean verificarCaminoLibre(int origenF, int origenC, int destinoF, int destinoC) {
-            int pasoF = Integer.compare(destinoF, origenF);
-            int pasoC = Integer.compare(destinoC, origenC);
-            
-            int f = origenF + pasoF;
-            int c = origenC + pasoC;
-            
-            while (f != destinoF || c != destinoC) {
-                if (tableroLogico.getPieza(f, c) != null) {
-                    return false;
-                }
-                f += pasoF;
-                c += pasoC;
-            }
-            
-            return true;
-        }
-
-        private String getEmojiPieza(Pieza pieza) {
-            switch (pieza.getTipo()) {
-                case "VAMPIRO": return "🧛";
-                case "HOMBRE_LOBO": return "🐺";
-                case "MUERTE": return "💀";
-                case "ZOMBIE": return "🧟";
-                default: return "❓";
-            }
         }
     }
 }

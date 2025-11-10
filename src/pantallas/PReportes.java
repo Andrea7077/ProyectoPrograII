@@ -14,9 +14,7 @@ import java.util.ArrayList;
  * @author andre
  */
 public class PReportes extends JFrame{
-    
-
-  private JTabbedPane tabbedPane;
+   private JTabbedPane tabbedPane;
     private JButton btnRegresar;
     private Cuenta usuario;
     private InterfazGuardado storage;
@@ -45,14 +43,12 @@ public class PReportes extends JFrame{
         fondo.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         setContentPane(fondo);
 
-        // Título
         JLabel lblTitulo = new JLabel("📊 REPORTES", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Serif", Font.BOLD, 40));
         lblTitulo.setForeground(new Color(255, 70, 70));
         lblTitulo.setBorder(BorderFactory.createEmptyBorder(10, 0, 15, 0));
         fondo.add(lblTitulo, BorderLayout.NORTH);
 
-        // Tabs
         tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 16));
         tabbedPane.setBackground(new Color(30, 30, 45));
@@ -63,7 +59,6 @@ public class PReportes extends JFrame{
 
         fondo.add(tabbedPane, BorderLayout.CENTER);
 
-        // Botón Regresar
         JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panelBoton.setOpaque(false);
 
@@ -89,7 +84,6 @@ public class PReportes extends JFrame{
         panel.setBackground(new Color(25, 25, 40));
         panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        // Tabla con diseño mejorado
         String[] columnas = {"#", "Usuario", "Puntos", "Jugadas", "Ganadas", "% Victoria"};
         DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
             @Override
@@ -111,22 +105,19 @@ public class PReportes extends JFrame{
         tabla.getTableHeader().setForeground(Color.WHITE);
         tabla.getTableHeader().setPreferredSize(new Dimension(0, 40));
 
-        // Centrar todas las columnas
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         for (int i = 0; i < tabla.getColumnCount(); i++) {
             tabla.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
-        // Ajustar anchos de columnas
-        tabla.getColumnModel().getColumn(0).setPreferredWidth(50);   // #
-        tabla.getColumnModel().getColumn(1).setPreferredWidth(200);  // Usuario
-        tabla.getColumnModel().getColumn(2).setPreferredWidth(100);  // Puntos
-        tabla.getColumnModel().getColumn(3).setPreferredWidth(100);  // Jugadas
-        tabla.getColumnModel().getColumn(4).setPreferredWidth(100);  // Ganadas
-        tabla.getColumnModel().getColumn(5).setPreferredWidth(120);  // % Victoria
+        tabla.getColumnModel().getColumn(0).setPreferredWidth(50);
+        tabla.getColumnModel().getColumn(1).setPreferredWidth(200);
+        tabla.getColumnModel().getColumn(2).setPreferredWidth(100);
+        tabla.getColumnModel().getColumn(3).setPreferredWidth(100);
+        tabla.getColumnModel().getColumn(4).setPreferredWidth(100);
+        tabla.getColumnModel().getColumn(5).setPreferredWidth(120);
 
-        // Llenar datos
         ArrayList<Cuenta> ranking = usuario.obtenerRanking();
         for (int i = 0; i < ranking.size(); i++) {
             Cuenta c = ranking.get(i);
@@ -154,7 +145,6 @@ public class PReportes extends JFrame{
         scroll.setBorder(BorderFactory.createLineBorder(new Color(139, 0, 0), 3));
         panel.add(scroll, BorderLayout.CENTER);
 
-        // Stats inferiores
         JPanel panelStats = new JPanel(new GridLayout(1, 3, 15, 0));
         panelStats.setOpaque(false);
         panelStats.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
@@ -182,8 +172,7 @@ public class PReportes extends JFrame{
         panel.setBackground(new Color(25, 25, 40));
         panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        // Tabla de partidas
-        String[] columnas = {"#", "Oponente", "Resultado", "Fecha"};
+        String[] columnas = {"#", "Oponente", "Resultado", "Puntos", "Fecha"};
         DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -204,35 +193,36 @@ public class PReportes extends JFrame{
         tabla.getTableHeader().setForeground(Color.WHITE);
         tabla.getTableHeader().setPreferredSize(new Dimension(0, 40));
 
-        // Centrar columnas
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         for (int i = 0; i < tabla.getColumnCount(); i++) {
             tabla.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
-        // Ajustar anchos
-        tabla.getColumnModel().getColumn(0).setPreferredWidth(50);   // #
-        tabla.getColumnModel().getColumn(1).setPreferredWidth(200);  // Oponente
-        tabla.getColumnModel().getColumn(2).setPreferredWidth(300);  // Resultado
-        tabla.getColumnModel().getColumn(3).setPreferredWidth(150);  // Fecha
+        tabla.getColumnModel().getColumn(0).setPreferredWidth(50);
+        tabla.getColumnModel().getColumn(1).setPreferredWidth(200);
+        tabla.getColumnModel().getColumn(2).setPreferredWidth(250);
+        tabla.getColumnModel().getColumn(3).setPreferredWidth(100);
+        tabla.getColumnModel().getColumn(4).setPreferredWidth(150);
 
-        // Obtener logs
+        // Obtener logs del sistema
         String[] logs = storage.obtenerLogs(usuario.getUsername());
         
         if (logs.length == 0) {
-            modelo.addRow(new Object[]{"", "No hay partidas", "Juega tu primera batalla", ""});
+            modelo.addRow(new Object[]{"", "Sin partidas", "Juega tu primera batalla", "", ""});
         } else {
             for (int i = 0; i < logs.length; i++) {
                 String log = logs[i];
+                
                 String oponente = extraerOponente(log);
-                String resultado = extraerResultado(log);
-                String fecha = java.time.LocalDate.now().toString(); // Podrías mejorarlo guardando fecha real
+                ResultadoPartida resultado = extraerResultado(log);
+                String fecha = java.time.LocalDate.now().toString();
                 
                 modelo.addRow(new Object[]{
                     i + 1,
                     oponente,
-                    resultado,
+                    resultado.texto,
+                    resultado.puntos,
                     fecha
                 });
             }
@@ -243,67 +233,116 @@ public class PReportes extends JFrame{
         panel.add(scroll, BorderLayout.CENTER);
 
         // Stats inferiores
-        JPanel panelStats = new JPanel(new GridLayout(1, 3, 15, 0));
+        JPanel panelStats = new JPanel(new GridLayout(1, 4, 15, 0));
         panelStats.setOpaque(false);
         panelStats.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
 
-        int totalPartidas = logs.length;
-        int victorias = 0;
-        int derrotas = 0;
-
-        for (String log : logs) {
-            if (log.contains(usuario.getUsername()) && 
-                (log.contains("VENCIO") || log.contains("ganado"))) {
-                victorias++;
-            } else if (log.contains(usuario.getUsername())) {
-                derrotas++;
-            }
-        }
+        int totalPartidas = usuario.getPartidasJugadas();
+        int victorias = usuario.getPartidasGanadas();
+        int derrotas = totalPartidas - victorias;
+        int puntosGanados = victorias * 3;
 
         panelStats.add(crearStatLabel("Total Partidas", String.valueOf(totalPartidas)));
         panelStats.add(crearStatLabel("Victorias", String.valueOf(victorias)));
         panelStats.add(crearStatLabel("Derrotas", String.valueOf(derrotas)));
+        panelStats.add(crearStatLabel("Puntos Ganados", "+" + puntosGanados));
 
         panel.add(panelStats, BorderLayout.SOUTH);
 
         return panel;
     }
 
+    private class ResultadoPartida {
+        String texto;
+        String puntos;
+        
+        ResultadoPartida(String texto, String puntos) {
+            this.texto = texto;
+            this.puntos = puntos;
+        }
+    }
+
     private String extraerOponente(String log) {
-        // Extraer el nombre del oponente del log
-        if (log.contains("VENCIO A")) {
-            String[] partes = log.split("VENCIO A");
-            if (partes.length > 1) {
-                String oponente = partes[1].split(",")[0].trim();
-                return oponente.equals(usuario.getUsername()) ? partes[0].trim() : oponente;
+        try {
+            String usuarioNombre = usuario.getUsername();
+            
+            // Formato: "ganador VENCIO A perdedor, FELICIDADES HAS GANADO 3 PUNTOS"
+            if (log.contains("VENCIO A")) {
+                String[] partes = log.split("VENCIO A");
+                String ganador = partes[0].trim();
+                String perdedor = partes[1].split(",")[0].trim();
+                
+                // Retornar el que NO es el usuario actual
+                if (ganador.equalsIgnoreCase(usuarioNombre)) {
+                    return perdedor;
+                } else if (perdedor.equalsIgnoreCase(usuarioNombre)) {
+                    return ganador;
+                } else {
+                    // Si ninguno coincide, retornar el primero que no sea el usuario
+                    return ganador.equalsIgnoreCase(usuarioNombre) ? perdedor : ganador;
+                }
             }
-        } else if (log.contains("SE HA RETIRADO")) {
-            String[] partes = log.split("SE HA RETIRADO");
-            if (partes.length > 0) {
+            // Formato: "perdedor SE HA RETIRADO, FELICIDADES ganador, HAS GANADO 3 PUNTOS"
+            else if (log.contains("SE HA RETIRADO")) {
+                String[] partes = log.split("SE HA RETIRADO");
                 String retirado = partes[0].trim();
+                
                 if (log.contains("FELICIDADES")) {
                     String[] partesGanador = log.split("FELICIDADES");
                     if (partesGanador.length > 1) {
                         String ganador = partesGanador[1].split(",")[0].trim();
-                        return retirado.equals(usuario.getUsername()) ? ganador : retirado;
+                        
+                        // Retornar el que NO es el usuario actual
+                        if (retirado.equalsIgnoreCase(usuarioNombre)) {
+                            return ganador;
+                        } else if (ganador.equalsIgnoreCase(usuarioNombre)) {
+                            return retirado;
+                        } else {
+                            return retirado.equalsIgnoreCase(usuarioNombre) ? ganador : retirado;
+                        }
                     }
                 }
+                
+                // Si no hay FELICIDADES, el retirado es el oponente si no es el usuario
+                return retirado.equalsIgnoreCase(usuarioNombre) ? "Desconocido" : retirado;
             }
+        } catch (Exception e) {
+            System.err.println("Error al extraer oponente: " + e.getMessage());
+            e.printStackTrace();
         }
         return "Desconocido";
     }
 
-    private String extraerResultado(String log) {
-        if (log.contains(usuario.getUsername() + " VENCIO")) {
-            return "🏆 VICTORIA";
-        } else if (log.contains("VENCIO A " + usuario.getUsername())) {
-            return "💀 DERROTA";
-        } else if (log.contains(usuario.getUsername() + " SE HA RETIRADO")) {
-            return "🏳️ TE RETIRASTE";
-        } else if (log.contains("SE HA RETIRADO") && log.contains("FELICIDADES " + usuario.getUsername())) {
-            return "🏆 OPONENTE SE RETIRÓ";
+    private ResultadoPartida extraerResultado(String log) {
+        try {
+            String usuarioNombre = usuario.getUsername();
+            
+            // VICTORIA - Usuario venció a alguien
+            if (log.contains(usuarioNombre + " VENCIO A") || 
+                log.contains(usuarioNombre + " VENCIO")) {
+                return new ResultadoPartida("🏆 VICTORIA", "+3");
+            }
+            
+            // DERROTA - Alguien venció al usuario
+            if (log.contains("VENCIO A " + usuarioNombre)) {
+                return new ResultadoPartida("💀 DERROTA", "0");
+            }
+            
+            // RETIRO - Usuario se retiró
+            if (log.contains(usuarioNombre + " SE HA RETIRADO")) {
+                return new ResultadoPartida("🏳️ TE RETIRASTE", "0");
+            }
+            
+            // VICTORIA POR RETIRO - Oponente se retiró
+            if (log.contains("SE HA RETIRADO") && 
+                log.contains("FELICIDADES " + usuarioNombre)) {
+                return new ResultadoPartida("🏆 OPONENTE SE RETIRÓ", "+3");
+            }
+        } catch (Exception e) {
+            System.err.println("Error al extraer resultado: " + e.getMessage());
         }
-        return "⚔️ Partida jugada";
+        
+        return new ResultadoPartida("⚔️ Partida jugada", "0");
     }
 
     private JPanel crearStatLabel(String titulo, String valor) {
