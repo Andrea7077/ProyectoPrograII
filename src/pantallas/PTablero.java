@@ -82,13 +82,13 @@ public class PTablero extends JFrame {
     }
 
     private void precargarImagenes() {
-        String[] tipos = {"vampiro", "hombre_lobo", "muerte", "zombie"};
+        String[] tipos = {"vampiro", "lobo", "muerte", "zombie"};
         String[] colores = {"blanco", "negro"};
         
         for (String tipo : tipos) {
             for (String color : colores) {
                 String key = tipo + "_" + color;
-                String ruta = "/imagenes/piezas/" + key + ".png";
+                String ruta = "/imagenes/" + key + ".png";
                 
                 try {
                     java.net.URL imgURL = getClass().getResource(ruta);
