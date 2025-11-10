@@ -197,7 +197,7 @@ public class PTablero extends JFrame {
     // RULETA CIRCULAR QUE SÍ GIRA
     // ========================================
     private class RuletaPanel extends JPanel {
-        private String[] piezas = {"LOBO", "VAMPIRO", "MUERTE", "LOBO", "VAMPIRO", "MUERTE", "LOBO", "VAMPIRO"};
+        private String[] piezas = {"LOBO", "VAMPIRO", "MUERTE", "LOBO", "VAMPIRO", "MUERTE"};
         private Color[] colores = {
             new Color(150, 75, 0), new Color(180, 0, 0), new Color(100, 0, 150),
             new Color(150, 75, 0), new Color(180, 0, 0), new Color(100, 0, 150),
@@ -218,7 +218,7 @@ public class PTablero extends JFrame {
             girando = true;
             final double[] velocidad = {30.0};
             final int[] frames = {0};
-            final int duracionGiro = 80; // frames
+            final int duracionGiro = 50; // frames
             
             Timer timer = new Timer(16, null);
             timer.addActionListener(e -> {

@@ -14,14 +14,13 @@ import java.util.ArrayList;
  * @author andre
  */
 public class PReportes extends JFrame{
-   private JTabbedPane tabbedPane;
+ private JTabbedPane tabbedPane;
     private JButton btnRegresar;
     private Cuenta usuario;
-    private InterfazGuardado storage;
+    private static InterfazGuardado storageGlobal = Tablero.getStorageGlobal(); // ✅ Usar storage compartido
 
     public PReportes() {
         usuario = Cuenta.getUsuarioActual();
-        storage = new Guardado();
         
         if (usuario == null) {
             JOptionPane.showMessageDialog(null,
@@ -205,8 +204,8 @@ public class PReportes extends JFrame{
         tabla.getColumnModel().getColumn(3).setPreferredWidth(100);
         tabla.getColumnModel().getColumn(4).setPreferredWidth(150);
 
-        // Obtener logs del sistema
-        String[] logs = storage.obtenerLogs(usuario.getUsername());
+        // ✅ CORREGIDO: Obtener logs del storage global
+        String[] logs = storageGlobal.obtenerLogs(usuario.getUsername());
         
         if (logs.length == 0) {
             modelo.addRow(new Object[]{"", "Sin partidas", "Juega tu primera batalla", "", ""});

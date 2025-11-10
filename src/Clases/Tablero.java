@@ -13,7 +13,7 @@ import java.util.Random;
  */
 public class Tablero {
 
-private static final int TAMANIO = 6;
+    private static final int TAMANIO = 6;
     private Pieza[][] casillas;
     private String jugador1;
     private String jugador2;
@@ -21,7 +21,7 @@ private static final int TAMANIO = 6;
     private int piezasPerdidasBlanco;
     private int piezasPerdidasNegro;
     private Random random;
-    private InterfazGuardado storage;
+    private static InterfazGuardado storageGlobal = new Guardado(); // ✅ Storage compartido
 
     public Tablero(String jugador1, String jugador2) {
         this.jugador1 = jugador1;
@@ -31,7 +31,6 @@ private static final int TAMANIO = 6;
         this.piezasPerdidasBlanco = 0;
         this.piezasPerdidasNegro = 0;
         this.random = new Random();
-        this.storage = new Guardado();
         inicializarTablero(jugador1, jugador2);
     }
 
@@ -111,6 +110,11 @@ private static final int TAMANIO = 6;
 
     public static int getTamanio() {
         return TAMANIO;
+    }
+    
+    // ✅ NUEVO: Getter para storage global
+    public static InterfazGuardado getStorageGlobal() {
+        return storageGlobal;
     }
 
     // ============================================
@@ -455,21 +459,27 @@ private static final int TAMANIO = 6;
 
     public void finalizarPartida(String ganador, String tipo) {
         try {
-            Jugador jugadorGanador = storage.obtenerPlayer(ganador);
-            if (jugadorGanador != null) {
-                jugadorGanador.agregarPuntos(3);
+            // ✅ CORREGIDO: Actualizar puntos en Cuenta, NO en Jugador
+            Cuenta cuentaGanadora = Cuenta.getUsuarioActual().buscarCuenta(ganador);
+            if (cuentaGanadora != null) {
+                cuentaGanadora.registrarPartida(true);
+            }
+            
+            String perdedor = ganador.equals(jugador1) ? jugador2 : jugador1;
+            Cuenta cuentaPerdedora = Cuenta.getUsuarioActual().buscarCuenta(perdedor);
+            if (cuentaPerdedora != null) {
+                cuentaPerdedora.registrarPartida(false);
             }
 
+            // ✅ CORREGIDO: Guardar en el storage global
             String mensaje;
             if (tipo.equals("RETIRO")) {
-                String perdedor = ganador.equals(jugador1) ? jugador2 : jugador1;
                 mensaje = perdedor + " SE HA RETIRADO, FELICIDADES " + ganador + ", HAS GANADO 3 PUNTOS";
             } else {
-                String perdedor = ganador.equals(jugador1) ? jugador2 : jugador1;
                 mensaje = ganador + " VENCIO A " + perdedor + ", FELICIDADES HAS GANADO 3 PUNTOS";
             }
 
-            storage.agregarLog(mensaje);
+            storageGlobal.agregarLog(mensaje);
         } catch (Exception e) {
             System.err.println("Error al finalizar partida: " + e.getMessage());
         }
