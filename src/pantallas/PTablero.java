@@ -21,8 +21,8 @@ public class PTablero extends JFrame {
     private TableroPanel tableroGUI;
     private RuletaPanel ruletaPanel;
     private JLabel lblTurno, lblPiezaSeleccionada, lblMensaje;
+    private JLabel lblPiezasBlanco, lblPiezasNegro;
     private JButton btnGirarRuleta, btnRetirarse;
-    private JTextArea areaLog;
 
     private String piezaPermitida = null;
     private int filaSeleccionada = -1;
@@ -94,28 +94,57 @@ public class PTablero extends JFrame {
     }
 
     private JPanel crearPanelSuperior() {
-        JPanel panel = new JPanel(new GridLayout(3, 1, 5, 5));
+        JPanel panel = new JPanel(new BorderLayout(15, 5));
         panel.setBackground(new Color(25, 25, 40));
         panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(139, 0, 0), 3),
-                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+                BorderFactory.createEmptyBorder(10, 15, 10, 15)
         ));
 
-        lblTurno = new JLabel(" Turno: " + tableroLogico.getTurnoJugadorActual(), SwingConstants.CENTER);
+        // Panel izquierdo con info del juego
+        JPanel panelInfo = new JPanel(new GridLayout(3, 1, 5, 5));
+        panelInfo.setOpaque(false);
+
+        lblTurno = new JLabel("Turno: " + tableroLogico.getTurnoJugadorActual(), SwingConstants.LEFT);
         lblTurno.setFont(new Font("Arial", Font.BOLD, 22));
         lblTurno.setForeground(new Color(255, 215, 0));
 
-        lblPiezaSeleccionada = new JLabel(" Presiona GIRAR RULETA para comenzar", SwingConstants.CENTER);
+        lblPiezaSeleccionada = new JLabel("Presiona GIRAR RULETA para comenzar", SwingConstants.LEFT);
         lblPiezaSeleccionada.setFont(new Font("Arial", Font.BOLD, 16));
         lblPiezaSeleccionada.setForeground(new Color(255, 100, 100));
 
-        lblMensaje = new JLabel("", SwingConstants.CENTER);
+        lblMensaje = new JLabel("", SwingConstants.LEFT);
         lblMensaje.setFont(new Font("Arial", Font.ITALIC, 14));
         lblMensaje.setForeground(new Color(100, 200, 255));
 
-        panel.add(lblTurno);
-        panel.add(lblPiezaSeleccionada);
-        panel.add(lblMensaje);
+        panelInfo.add(lblTurno);
+        panelInfo.add(lblPiezaSeleccionada);
+        panelInfo.add(lblMensaje);
+
+        // Panel derecho con contador de piezas
+        JPanel panelContadores = new JPanel(new GridLayout(2, 1, 5, 8));
+        panelContadores.setOpaque(false);
+        panelContadores.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 5));
+
+        lblPiezasBlanco = new JLabel("", SwingConstants.CENTER);
+        lblPiezasBlanco.setFont(new Font("Arial", Font.BOLD, 16));
+        lblPiezasBlanco.setForeground(new Color(100, 150, 255));
+        lblPiezasBlanco.setBorder(BorderFactory.createLineBorder(new Color(100, 150, 255), 2));
+        lblPiezasBlanco.setOpaque(true);
+        lblPiezasBlanco.setBackground(new Color(40, 40, 60));
+
+        lblPiezasNegro = new JLabel("", SwingConstants.CENTER);
+        lblPiezasNegro.setFont(new Font("Arial", Font.BOLD, 16));
+        lblPiezasNegro.setForeground(new Color(255, 100, 100));
+        lblPiezasNegro.setBorder(BorderFactory.createLineBorder(new Color(255, 100, 100), 2));
+        lblPiezasNegro.setOpaque(true);
+        lblPiezasNegro.setBackground(new Color(40, 40, 60));
+
+        panelContadores.add(lblPiezasBlanco);
+        panelContadores.add(lblPiezasNegro);
+
+        panel.add(panelInfo, BorderLayout.CENTER);
+        panel.add(panelContadores, BorderLayout.EAST);
 
         return panel;
     }
@@ -126,13 +155,13 @@ public class PTablero extends JFrame {
         panel.setBackground(new Color(20, 20, 35));
         panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(139, 0, 0), 3),
-                BorderFactory.createEmptyBorder(15, 15, 15, 15)
+                BorderFactory.createEmptyBorder(20, 20, 20, 20)
         ));
-        panel.setPreferredSize(new Dimension(320, 0));
+        panel.setPreferredSize(new Dimension(360, 0));
 
         JLabel lblRuleta = new JLabel("RULETA", SwingConstants.CENTER);
         lblRuleta.setForeground(new Color(255, 215, 0));
-        lblRuleta.setFont(new Font("Serif", Font.BOLD, 20));
+        lblRuleta.setFont(new Font("Serif", Font.BOLD, 24));
         lblRuleta.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         ruletaPanel = new RuletaPanel();
@@ -142,68 +171,50 @@ public class PTablero extends JFrame {
         ruletaPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         btnGirarRuleta = new JButton("GIRAR RULETA");
-        btnGirarRuleta.setFont(new Font("Arial", Font.BOLD, 16));
+        btnGirarRuleta.setFont(new Font("Arial", Font.BOLD, 18));
         btnGirarRuleta.setBackground(new Color(139, 0, 0));
         btnGirarRuleta.setForeground(Color.WHITE);
         btnGirarRuleta.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btnGirarRuleta.setMaximumSize(new Dimension(240, 55));
+        btnGirarRuleta.setMaximumSize(new Dimension(280, 60));
         btnGirarRuleta.setFocusPainted(false);
         btnGirarRuleta.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnGirarRuleta.addActionListener(e -> girarRuleta());
 
         btnRetirarse = new JButton("RETIRARSE");
-        btnRetirarse.setFont(new Font("Arial", Font.BOLD, 14));
+        btnRetirarse.setFont(new Font("Arial", Font.BOLD, 16));
         btnRetirarse.setBackground(new Color(70, 0, 0));
         btnRetirarse.setForeground(Color.WHITE);
         btnRetirarse.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btnRetirarse.setMaximumSize(new Dimension(240, 45));
+        btnRetirarse.setMaximumSize(new Dimension(280, 50));
         btnRetirarse.setFocusPainted(false);
         btnRetirarse.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnRetirarse.addActionListener(e -> retirarse());
 
-        JLabel lblLog = new JLabel("Historial", SwingConstants.CENTER);
-        lblLog.setForeground(new Color(255, 215, 0));
-        lblLog.setFont(new Font("Arial", Font.BOLD, 15));
-        lblLog.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        areaLog = new JTextArea(14, 22);
-        areaLog.setEditable(false);
-        areaLog.setBackground(new Color(15, 15, 25));
-        areaLog.setForeground(new Color(220, 220, 220));
-        areaLog.setFont(new Font("Monospaced", Font.PLAIN, 11));
-        areaLog.setLineWrap(true);
-        areaLog.setWrapStyleWord(true);
-        JScrollPane scrollLog = new JScrollPane(areaLog);
-        scrollLog.setMaximumSize(new Dimension(290, 280));
-        scrollLog.setBorder(BorderFactory.createLineBorder(new Color(100, 100, 120), 2));
-
         panel.add(lblRuleta);
-        panel.add(Box.createRigidArea(new Dimension(0, 15)));
+        panel.add(Box.createRigidArea(new Dimension(0, 20)));
         panel.add(ruletaPanel);
-        panel.add(Box.createRigidArea(new Dimension(0, 20)));
+        panel.add(Box.createRigidArea(new Dimension(0, 25)));
         panel.add(btnGirarRuleta);
-        panel.add(Box.createRigidArea(new Dimension(0, 12)));
-        panel.add(btnRetirarse);
-        panel.add(Box.createRigidArea(new Dimension(0, 20)));
-        panel.add(new JSeparator(SwingConstants.HORIZONTAL));
         panel.add(Box.createRigidArea(new Dimension(0, 15)));
-        panel.add(lblLog);
-        panel.add(Box.createRigidArea(new Dimension(0, 8)));
-        panel.add(scrollLog);
+        panel.add(btnRetirarse);
         panel.add(Box.createVerticalGlue());
 
         return panel;
     }
 
     // ========================================
-    // RULETA CIRCULAR QUE SÍ GIRA
+    // RULETA CIRCULAR ARREGLADA DE VERDAD - 6 NOMBRES VISIBLES
     // ========================================
     private class RuletaPanel extends JPanel {
 
-        private String[] piezas = {"LOBO", "VAMPIRO", "MUERTE", "LOBO", "VAMPIRO", "MUERTE"};
+        private String[] piezas = {"VAMPIRO", "LOBO", "MUERTE", "VAMPIRO", "LOBO", "MUERTE"};
         private Color[] colores = {
-            new Color(150, 75, 0), new Color(180, 0, 0), new Color(100, 0, 150),
-            new Color(150, 75, 0), new Color(180, 0, 0), new Color(100, 0, 150)
+            new Color(180, 0, 0),      // Rojo - Vampiro
+            new Color(150, 75, 0),     // Café - Lobo
+            new Color(100, 0, 150),    // Morado - Muerte
+            new Color(180, 0, 0),      // Rojo - Vampiro
+            new Color(150, 75, 0),     // Café - Lobo
+            new Color(100, 0, 150)     // Morado - Muerte
         };
         private double anguloRotacion = 0;
         private boolean girando = false;
@@ -222,7 +233,7 @@ public class PTablero extends JFrame {
             girando = true;
             final double[] velocidad = {30.0};
             final int[] frames = {0};
-            final int duracionGiro = 50; // frames
+            final int duracionGiro = 50;
 
             Timer timer = new Timer(16, null);
             timer.addActionListener(e -> {
@@ -231,7 +242,7 @@ public class PTablero extends JFrame {
                     anguloRotacion -= 360;
                 }
 
-                velocidad[0] *= 0.97; // Desaceleración
+                velocidad[0] *= 0.97;
                 frames[0]++;
 
                 repaint();
@@ -240,7 +251,6 @@ public class PTablero extends JFrame {
                     timer.stop();
                     girando = false;
 
-                    // Calcular pieza seleccionada
                     double anguloSegmento = 360.0 / piezas.length;
                     double anguloIndicador = (360 - anguloRotacion + 90) % 360;
                     indiceSeleccionado = (int) (anguloIndicador / anguloSegmento);
@@ -257,58 +267,80 @@ public class PTablero extends JFrame {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g;
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
             int centerX = getWidth() / 2;
             int centerY = getHeight() / 2;
             int radio = 100;
 
-            // Guardar transformación original
             java.awt.geom.AffineTransform transformOriginal = g2.getTransform();
 
-            // Aplicar rotación
+            // Rotar la ruleta
             g2.rotate(Math.toRadians(anguloRotacion), centerX, centerY);
 
-            // Dibujar segmentos
             int numSegmentos = piezas.length;
             double anguloSegmento = 360.0 / numSegmentos;
 
             for (int i = 0; i < numSegmentos; i++) {
                 double anguloInicio = i * anguloSegmento;
 
+                // Dibujar segmento de color
                 g2.setColor(colores[i]);
                 g2.fillArc(centerX - radio, centerY - radio, radio * 2, radio * 2,
                         (int) anguloInicio, (int) anguloSegmento);
 
-                g2.setColor(new Color(0, 0, 0, 100));
-                g2.setStroke(new BasicStroke(2));
+                // Borde del segmento
+                g2.setColor(new Color(0, 0, 0, 150));
+                g2.setStroke(new BasicStroke(3));
                 g2.drawArc(centerX - radio, centerY - radio, radio * 2, radio * 2,
                         (int) anguloInicio, (int) anguloSegmento);
-
-                // Texto
-                double anguloMedio = Math.toRadians(anguloInicio + anguloSegmento / 2);
-                int textX = centerX + (int) (Math.cos(anguloMedio) * radio * 0.65);
-                int textY = centerY + (int) (Math.sin(anguloMedio) * radio * 0.65);
-
-                g2.setFont(new Font("Arial", Font.BOLD, 11));
-                String texto = piezas[i];
-                FontMetrics fm = g2.getFontMetrics();
-
-                g2.setColor(new Color(0, 0, 0, 180));
-                g2.drawString(texto, textX - fm.stringWidth(texto) / 2 + 1, textY + 1);
-
-                g2.setColor(Color.WHITE);
-                g2.drawString(texto, textX - fm.stringWidth(texto) / 2, textY);
             }
 
-            // Restaurar transformación
+            // Restaurar transformación para dibujar texto SIN rotar
             g2.setTransform(transformOriginal);
+
+            // AHORA dibujar los textos EN CADA SEGMENTO (sin rotar con la ruleta)
+            for (int i = 0; i < numSegmentos; i++) {
+                double anguloInicio = i * anguloSegmento;
+                double anguloMedio = Math.toRadians(anguloInicio + anguloSegmento / 2 + anguloRotacion);
+                
+                // Calcular posición del texto
+                int distanciaTexto = (int) (radio * 0.65);
+                int textX = centerX + (int) (Math.cos(anguloMedio) * distanciaTexto);
+                int textY = centerY + (int) (Math.sin(anguloMedio) * distanciaTexto);
+
+                String texto = piezas[i];
+                g2.setFont(new Font("Arial", Font.BOLD, 13));
+                FontMetrics fm = g2.getFontMetrics();
+                int anchoTexto = fm.stringWidth(texto);
+                int altoTexto = fm.getHeight();
+
+                // Guardar transformación
+                java.awt.geom.AffineTransform savedTransform = g2.getTransform();
+                
+                // Rotar el texto para que apunte hacia el centro
+                g2.translate(textX, textY);
+                g2.rotate(anguloMedio + Math.PI/2);
+
+                // Sombra negra para mejor visibilidad
+                g2.setColor(new Color(0, 0, 0, 220));
+                g2.drawString(texto, -anchoTexto / 2 + 1, altoTexto / 4 + 1);
+                g2.drawString(texto, -anchoTexto / 2 - 1, altoTexto / 4 - 1);
+
+                // Texto blanco
+                g2.setColor(Color.WHITE);
+                g2.drawString(texto, -anchoTexto / 2, altoTexto / 4);
+
+                // Restaurar transformación
+                g2.setTransform(savedTransform);
+            }
 
             // Círculo exterior dorado
             g2.setColor(new Color(255, 215, 0));
             g2.setStroke(new BasicStroke(6));
             g2.drawOval(centerX - radio - 5, centerY - radio - 5, (radio + 5) * 2, (radio + 5) * 2);
 
-            // Indicador (triángulo en la parte superior)
+            // Indicador (triángulo superior)
             int[] xPoints = {centerX, centerX - 15, centerX + 15};
             int[] yPoints = {centerY - radio - 20, centerY - radio - 5, centerY - radio - 5};
             g2.setColor(new Color(255, 215, 0));
@@ -318,7 +350,7 @@ public class PTablero extends JFrame {
             g2.drawPolygon(xPoints, yPoints, 3);
 
             // Círculo central
-            g2.setColor(new Color(50, 50, 50));
+            g2.setColor(new Color(40, 40, 40));
             g2.fillOval(centerX - 25, centerY - 25, 50, 50);
             g2.setColor(new Color(255, 215, 0));
             g2.setStroke(new BasicStroke(3));
@@ -339,7 +371,6 @@ public class PTablero extends JFrame {
 
         try {
             btnGirarRuleta.setEnabled(false);
-            agregarLog("Girando ruleta... (" + girosRestantes + " giros restantes)");
 
             ruletaPanel.girar(() -> {
                 String seleccionada = ruletaPanel.getPiezaSeleccionada();
@@ -348,17 +379,14 @@ public class PTablero extends JFrame {
                     piezaPermitida = seleccionada;
                     lblPiezaSeleccionada.setText("✨ Pieza: " + getNombreCompleto(seleccionada));
                     lblMensaje.setText("👆 Selecciona tu " + getNombreCompleto(seleccionada));
-                    agregarLog("✅ " + getNombreCompleto(seleccionada) + " disponible");
                     girosRestantes = 0;
                 } else {
                     girosRestantes--;
                     if (girosRestantes > 0) {
                         lblMensaje.setText("No tienes esa pieza. Giros restantes: " + girosRestantes);
-                        agregarLog("Sin " + getNombreCompleto(seleccionada) + " - " + girosRestantes + " giros más");
                         btnGirarRuleta.setEnabled(true);
                     } else {
                         lblMensaje.setText("❌ Sin piezas - Pierdes turno");
-                        agregarLog("❌ Turno perdido por falta de piezas");
                         Timer timer = new Timer(2000, ev -> {
                             btnGirarRuleta.setEnabled(true);
                             cambiarTurno();
@@ -403,8 +431,11 @@ public class PTablero extends JFrame {
                     ? tableroLogico.getJugador1()
                     : tableroLogico.getJugador2();
 
-            tableroLogico.finalizarPartida(ganador, "RETIRO");
+            // ✅ SOLO registrar partida aquí (no en Tablero.finalizarPartida)
             registrarPartidaParaAmbos(ganador, perdedor, true);
+            
+            // Guardar el log sin actualizar puntos de nuevo
+            tableroLogico.finalizarPartida(ganador, "RETIRO");
 
             JOptionPane.showMessageDialog(this,
                     "🏆 ¡" + ganador + " ha ganado por retiro!\n+3 puntos",
@@ -471,7 +502,7 @@ public class PTablero extends JFrame {
                     if (opcion == 1) {
                         String resultado = tableroLogico.conjurarZombie(
                                 filaSeleccionada, colSeleccionada, filaDestino, colDestino);
-                        agregarLog(resultado);
+                        lblMensaje.setText(resultado);
                         finalizarTurno();
                         return;
                     }
@@ -482,7 +513,7 @@ public class PTablero extends JFrame {
                     if (deltaF == 2 || deltaC == 2) {
                         String resultado = tableroLogico.loboMover2Casillas(
                                 filaSeleccionada, colSeleccionada, filaDestino, colDestino);
-                        agregarLog(resultado);
+                        lblMensaje.setText(resultado);
                         finalizarTurno();
                         return;
                     }
@@ -492,7 +523,7 @@ public class PTablero extends JFrame {
                         filaSeleccionada, colSeleccionada, filaDestino, colDestino);
 
                 if (movido) {
-                    agregarLog("Movimiento exitoso");
+                    lblMensaje.setText("Movimiento exitoso");
                     finalizarTurno();
                 } else {
                     lblMensaje.setText("❌ Movimiento inválido");
@@ -507,10 +538,10 @@ public class PTablero extends JFrame {
                         null, opciones, opciones[0]);
 
                 String resultado = ejecutarAtaque(opcion, origen, filaDestino, colDestino);
-                agregarLog(resultado);
+                lblMensaje.setText(resultado);
                 finalizarTurno();
             } else {
-                lblMensaje.setText("❌No puedes atacar tus propias piezas");
+                lblMensaje.setText("❌ No puedes atacar tus propias piezas");
             }
         } catch (Exception e) {
             mostrarError("Error: " + e.getMessage());
@@ -576,8 +607,11 @@ public class PTablero extends JFrame {
                     ? tableroLogico.getJugador2()
                     : tableroLogico.getJugador1();
 
-            tableroLogico.finalizarPartida(ganador, "VICTORIA");
+            // ✅ SOLO registrar partida aquí (no en Tablero.finalizarPartida)
             registrarPartidaParaAmbos(ganador, perdedor, false);
+            
+            // Guardar el log sin actualizar puntos de nuevo
+            tableroLogico.finalizarPartida(ganador, "VICTORIA");
 
             JOptionPane.showMessageDialog(this,
                     "¡" + ganador + " ha ganado la partida!\n+3 puntos",
@@ -597,16 +631,22 @@ public class PTablero extends JFrame {
     }
 
     private void registrarPartidaParaAmbos(String ganador, String perdedor, boolean retiro) {
-        Cuenta usuario = Cuenta.getUsuarioActual();
-        Cuenta cuentaGanadora = usuario.buscarCuenta(ganador);
-        Cuenta cuentaPerdedora = usuario.buscarCuenta(perdedor);
+        try {
+            Cuenta usuario = Cuenta.getUsuarioActual();
+            
+            // Registrar para el ganador
+            Cuenta cuentaGanadora = usuario.buscarCuenta(ganador);
+            if (cuentaGanadora != null) {
+                cuentaGanadora.registrarPartida(true);
+            }
 
-        if (cuentaGanadora != null) {
-            cuentaGanadora.registrarPartida(true);
-        }
-
-        if (cuentaPerdedora != null) {
-            cuentaPerdedora.registrarPartida(false);
+            // Registrar para el perdedor
+            Cuenta cuentaPerdedora = usuario.buscarCuenta(perdedor);
+            if (cuentaPerdedora != null) {
+                cuentaPerdedora.registrarPartida(false);
+            }
+        } catch (Exception e) {
+            System.err.println("Error al registrar partida: " + e.getMessage());
         }
     }
 
@@ -638,6 +678,19 @@ public class PTablero extends JFrame {
         return cuenta;
     }
 
+    private int contarTodasPiezas(String color) {
+        int cuenta = 0;
+        for (int i = 0; i < TAMANO_TABLERO; i++) {
+            for (int j = 0; j < TAMANO_TABLERO; j++) {
+                Pieza p = tableroLogico.getPieza(i, j);
+                if (p != null && p.getColor().equals(color)) {
+                    cuenta++;
+                }
+            }
+        }
+        return cuenta;
+    }
+
     private boolean verificarCaminoLibre(int origenF, int origenC, int destinoF, int destinoC) {
         int pasoF = Integer.compare(destinoF, origenF);
         int pasoC = Integer.compare(destinoC, origenC);
@@ -659,28 +712,30 @@ public class PTablero extends JFrame {
     private void actualizarInterfaz() {
         String jugador = tableroLogico.getTurnoJugadorActual();
         String color = tableroLogico.getTurnoActual();
-        lblTurno.setText("Turno: " + jugador + " (" + color + ")");
-        lblPiezaSeleccionada.setText("Presiona GIRAR RULETA (" + girosRestantes + " giros)");
+        lblTurno.setText("🎮 Turno: " + jugador + " (" + color + ")");
+        lblPiezaSeleccionada.setText("🎲 Presiona GIRAR RULETA (" + girosRestantes + " giros)");
         lblMensaje.setText("");
+        
+        // Actualizar contadores de piezas
+        int piezasBlanco = contarTodasPiezas("BLANCO");
+        int piezasNegro = contarTodasPiezas("NEGRO");
+        
+        lblPiezasBlanco.setText("⚪ " + tableroLogico.getJugador1() + ": " + piezasBlanco + " piezas");
+        lblPiezasNegro.setText("⚫ " + tableroLogico.getJugador2() + ": " + piezasNegro + " piezas");
+        
         tableroGUI.repaint();
-    }
-
-    private void agregarLog(String mensaje) {
-        String tiempo = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
-        areaLog.append("[" + tiempo + "] " + mensaje + "\n");
-        areaLog.setCaretPosition(areaLog.getDocument().getLength());
     }
 
     private String getNombreCompleto(String tipo) {
         switch (tipo) {
             case "HOMBRE_LOBO":
-                return "lobo";
+                return "Hombre Lobo";
             case "VAMPIRO":
-                return "vampiro";
+                return "Vampiro";
             case "MUERTE":
-                return "muerte";
+                return "Muerte";
             case "ZOMBIE":
-                return "zombie";
+                return "Zombie";
             default:
                 return tipo;
         }
@@ -692,18 +747,18 @@ public class PTablero extends JFrame {
     }
 
     // ========================================
-    // TABLERO CON IMÁGENES
+    // TABLERO CON IMÁGENES - MEJORADO
     // ========================================
     private class TableroPanel extends JPanel {
 
         private CasillaButton[][] casillas;
 
         public TableroPanel() {
-            setLayout(new GridLayout(TAMANO_TABLERO, TAMANO_TABLERO, 4, 4));
+            setLayout(new GridLayout(TAMANO_TABLERO, TAMANO_TABLERO, 5, 5));
             setBackground(new Color(20, 20, 30));
             setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(new Color(139, 0, 0), 5),
-                    BorderFactory.createEmptyBorder(12, 12, 12, 12)
+                    BorderFactory.createLineBorder(new Color(139, 0, 0), 6),
+                    BorderFactory.createEmptyBorder(15, 15, 15, 15)
             ));
 
             casillas = new CasillaButton[TAMANO_TABLERO][TAMANO_TABLERO];
@@ -735,7 +790,7 @@ public class PTablero extends JFrame {
     }
 
     // ========================================
-    // CASILLA CON IMÁGENES Y OVERLAY DE COLORES
+    // CASILLA CON IMÁGENES Y OVERLAY DE COLORES - MEJORADA
     // ========================================
     private class CasillaButton extends JButton {
 
@@ -750,9 +805,9 @@ public class PTablero extends JFrame {
             colorBase = ((fila + col) % 2 == 0)
                     ? new Color(245, 222, 179) : new Color(139, 69, 19);
 
-            setPreferredSize(new Dimension(95, 95));
+            setPreferredSize(new Dimension(105, 105));
             setBackground(colorBase);
-            setFont(new Font("Arial", Font.BOLD, 10));
+            setFont(new Font("Arial", Font.BOLD, 11));
             setFocusPainted(false);
             setBorderPainted(true);
             setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -788,20 +843,20 @@ public class PTablero extends JFrame {
             // Dibujar estadísticas si hay pieza
             Pieza pieza = tableroLogico.getPieza(fila, col);
             if (pieza != null) {
-                g2.setFont(new Font("Arial", Font.BOLD, 10));
-                String stats = "V:" + pieza.getVidas() + " E:" + pieza.getEscudo();
+                g2.setFont(new Font("Arial", Font.BOLD, 11));
+                String stats = "❤️" + pieza.getVidas() + " 🛡️" + pieza.getEscudo();
                 FontMetrics fm = g2.getFontMetrics();
                 int textWidth = fm.stringWidth(stats);
 
                 // Fondo semitransparente para el texto
-                g2.setColor(new Color(0, 0, 0, 150));
-                g2.fillRect((getWidth() - textWidth) / 2 - 3, getHeight() - 18, textWidth + 6, 16);
+                g2.setColor(new Color(0, 0, 0, 180));
+                g2.fillRoundRect((getWidth() - textWidth) / 2 - 4, getHeight() - 22, textWidth + 8, 18, 5, 5);
 
                 // Texto
                 Color colorTexto = pieza.getColor().equals("BLANCO")
                         ? new Color(100, 150, 255) : new Color(255, 100, 100);
                 g2.setColor(colorTexto);
-                g2.drawString(stats, (getWidth() - textWidth) / 2, getHeight() - 5);
+                g2.drawString(stats, (getWidth() - textWidth) / 2, getHeight() - 8);
             }
 
             // Dibujar borde
@@ -815,7 +870,7 @@ public class PTablero extends JFrame {
         private Color obtenerColorOverlay() {
             // Casilla seleccionada (dorada)
             if (fila == filaSeleccionada && col == colSeleccionada) {
-                return new Color(255, 215, 0, 120);
+                return new Color(255, 215, 0, 130);
             }
 
             // Casillas de destino
@@ -825,14 +880,14 @@ public class PTablero extends JFrame {
 
                 // MUERTE: Puede conjurar zombie en CUALQUIER casilla vacía
                 if (seleccionada instanceof Muerte && actual == null) {
-                    return new Color(138, 43, 226, 100); // Morado para zombies
+                    return new Color(138, 43, 226, 110); // Morado para zombies
                 } // Movimiento normal (verde)
                 else if (actual == null && esMovimientoValido(seleccionada, fila, col)) {
-                    return new Color(0, 255, 100, 100);
+                    return new Color(0, 255, 100, 110);
                 } // Ataque (rojo)
                 else if (actual != null && !actual.getColor().equals(tableroLogico.getTurnoActual())
                         && esAtaqueValido(seleccionada, fila, col)) {
-                    return new Color(255, 50, 50, 100);
+                    return new Color(255, 50, 50, 110);
                 }
             }
 
@@ -848,7 +903,7 @@ public class PTablero extends JFrame {
 
         private int obtenerTamañoBorde() {
             if (fila == filaSeleccionada && col == colSeleccionada) {
-                return 5;
+                return 6;
             }
 
             if (esperandoDestino && filaSeleccionada != -1) {
@@ -871,29 +926,17 @@ public class PTablero extends JFrame {
             if (pieza != null) {
                 String tipo = pieza.getTipo().toLowerCase();
                 String color = pieza.getColor().toLowerCase();
-                String ruta = "/imagenes/" + tipo + "_" + color + ".png"; // ejemplo: /imagenes/lobo_blanco.png
+                String ruta = "/imagenes/" + tipo + "_" + color + ".png";
                 java.net.URL url = getClass().getResource(ruta);
                 if (url != null) {
                     imagenActual = new ImageIcon(url);
                 } else {
-                    imagenActual = null; // si no encuentra imagen
+                    imagenActual = null;
                 }
             } else {
                 imagenActual = null;
             }
             repaint();
-        }
-
-        private String obtenerNombreImagen(Pieza pieza) {
-            String tipo = pieza.getTipo().toLowerCase();
-            String color = pieza.getColor().toLowerCase();
-
-            // Mapear nombres de tipos
-            if (tipo.equals("HOMBRE_LOBO")) {
-                tipo = "lobo";
-            }
-
-            return tipo + "_" + color + ".png";
         }
 
         private boolean esMovimientoValido(Pieza pieza, int destinoF, int destinoC) {

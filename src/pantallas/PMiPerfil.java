@@ -13,8 +13,7 @@ import java.awt.*;
  * @author andre
  */
 public class PMiPerfil extends JFrame {
-
-    private Cuenta usuario;
+ private Cuenta usuario;
     private JLabel lblUsername, lblPuntos, lblFecha, lblPartidas, lblGanadas, lblPorcentaje;
     private JButton btnCambiarPassword, btnEliminarCuenta, btnRegresar;
 
@@ -104,7 +103,7 @@ public class PMiPerfil extends JFrame {
         infoPanel.add(lblGanadas);
 
         // Porcentaje
-        infoPanel.add(crearLabel("?Tasa de victoria:"));
+        infoPanel.add(crearLabel("Tasa de victoria:"));
         lblPorcentaje = crearLabelValor("");
         infoPanel.add(lblPorcentaje);
 
@@ -182,7 +181,58 @@ public class PMiPerfil extends JFrame {
     }
 
     private void eliminarCuenta() {
-        // (Sin cambios)
+        // Crear panel personalizado para el diálogo
+        JPanel panel = new JPanel(new GridLayout(3, 1, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        JLabel lblAdvertencia = new JLabel("⚠️ ESTA ACCIÓN NO SE PUEDE DESHACER");
+        lblAdvertencia.setFont(new Font("Arial", Font.BOLD, 14));
+        lblAdvertencia.setForeground(Color.RED);
+        lblAdvertencia.setHorizontalAlignment(SwingConstants.CENTER);
+        
+        JLabel lblInstruccion = new JLabel("Ingresa tu contraseña para confirmar:");
+        lblInstruccion.setFont(new Font("Arial", Font.PLAIN, 12));
+        
+        JPasswordField txtPassword = new JPasswordField(15);
+        
+        panel.add(lblAdvertencia);
+        panel.add(lblInstruccion);
+        panel.add(txtPassword);
+
+        int opcion = JOptionPane.showConfirmDialog(
+                this,
+                panel,
+                "🗑️ Confirmar Eliminación de Cuenta",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+
+        if (opcion == JOptionPane.OK_OPTION) {
+            String password = new String(txtPassword.getPassword());
+            
+            if (password.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "❌ Debes ingresar tu contraseña",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (Cuenta.eliminarCuentaActual(password)) {
+                JOptionPane.showMessageDialog(this,
+                        "✅ Cuenta eliminada exitosamente\nSerás redirigido al menú de inicio",
+                        "Cuenta Eliminada",
+                        JOptionPane.INFORMATION_MESSAGE);
+                
+                dispose();
+                new MenuDeInicio().setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "❌ Contraseña incorrecta\nNo se pudo eliminar la cuenta",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     static class FondoPanel extends JPanel {
